@@ -156,10 +156,10 @@
           </div>
           <div class="player-bar">
             <button id="playPauseBtn" class="player-bar__toggle player-bar__toggle--play" type="button" disabled aria-label="Reproducir">▶</button>
-            <div class="timeline-range-wrap">
+            <div id="timelineRangeWrap" class="timeline-range-wrap">
               <div class="timeline-selection" aria-hidden="true"></div>
-              <div class="timeline-boundary timeline-boundary--start" aria-hidden="true"></div>
-              <div class="timeline-boundary timeline-boundary--end" aria-hidden="true"></div>
+              <button id="timelineStartHandle" class="timeline-boundary timeline-boundary--start" type="button" disabled aria-label="Mover inicio"></button>
+              <button id="timelineEndHandle" class="timeline-boundary timeline-boundary--end" type="button" disabled aria-label="Mover fin"></button>
               <input id="timelineRange" class="timeline-range" type="range" min="0" max="0" step="0.01" value="0" disabled>
             </div>
             <div id="timelineCurrentLabel" class="player-bar__time">0.00 s</div>

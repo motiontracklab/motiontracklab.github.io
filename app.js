@@ -6,6 +6,9 @@ const trackBtn = document.getElementById("trackBtn");
 const resetBtn = document.getElementById("resetBtn");
 const exportBtn = document.getElementById("exportBtn");
 const timelineRange = document.getElementById("timelineRange");
+const timelineRangeWrap = document.getElementById("timelineRangeWrap");
+const timelineStartHandle = document.getElementById("timelineStartHandle");
+const timelineEndHandle = document.getElementById("timelineEndHandle");
 const setStartBtn = document.getElementById("setStartBtn");
 const setEndBtn = document.getElementById("setEndBtn");
 const jumpStartBtn = document.getElementById("jumpStartBtn");
@@ -116,6 +119,8 @@ const translations = {
     jumpEnd: "Ir al fin",
     reset: "Reiniciar",
     playbackRateLabel: "Velocidad",
+    timelineStartHandleAria: "Mover el inicio del análisis",
+    timelineEndHandleAria: "Mover el fin del análisis",
     timelineStart: "Inicio: {time}",
     timelineEnd: "Fin: {time}",
     legendTarget: '<i class="dot dot--target"></i>Punto seguido',
@@ -310,6 +315,8 @@ const translations = {
     jumpEnd: "Ves al final",
     reset: "Reinicia",
     playbackRateLabel: "Velocitat",
+    timelineStartHandleAria: "Mou l'inici de l'anàlisi",
+    timelineEndHandleAria: "Mou el final de l'anàlisi",
     timelineStart: "Inici: {time}",
     timelineEnd: "Final: {time}",
     legendTarget: '<i class="dot dot--target"></i>Punt seguit',
@@ -504,6 +511,8 @@ const translations = {
     jumpEnd: "Ir ao fin",
     reset: "Reiniciar",
     playbackRateLabel: "Velocidade",
+    timelineStartHandleAria: "Mover o inicio da análise",
+    timelineEndHandleAria: "Mover o fin da análise",
     timelineStart: "Inicio: {time}",
     timelineEnd: "Fin: {time}",
     legendTarget: '<i class="dot dot--target"></i>Punto seguido',
@@ -698,6 +707,8 @@ const translations = {
     jumpEnd: "Joan amaierara",
     reset: "Berrezarri",
     playbackRateLabel: "Abiadura",
+    timelineStartHandleAria: "Mugitu analisiaren hasiera",
+    timelineEndHandleAria: "Mugitu analisiaren amaiera",
     timelineStart: "Hasiera: {time}",
     timelineEnd: "Amaiera: {time}",
     legendTarget: '<i class="dot dot--target"></i>Jarraitutako puntua',
@@ -892,6 +903,8 @@ const translations = {
     jumpEnd: "Go to end",
     reset: "Reset",
     playbackRateLabel: "Speed",
+    timelineStartHandleAria: "Move the analysis start",
+    timelineEndHandleAria: "Move the analysis end",
     timelineStart: "Start: {time}",
     timelineEnd: "End: {time}",
     legendTarget: '<i class="dot dot--target"></i>Tracked point',
@@ -1044,6 +1057,10 @@ let lastStatusMessage = { key: "statusSelectVideo", params: {}, isError: false }
 let lastCanvasHintMessage = { key: "canvasSelectVideo", params: {} };
 let lastSelectionMessage = { key: "selectionNoPoint", params: {} };
 let lastToastMessage = null;
+let activeTimelineBoundary = null;
+let pendingTimelineSeek = null;
+let timelineSeekInFlight = false;
+let hideTimelineMarker = false;
 
 function formatTime(value) {
   return `${formatNumber(value, 2)} s`;
@@ -1245,6 +1262,8 @@ function renderStaticTexts() {
   setText("jumpEndBtn", "jumpEnd");
   setText("resetBtn", "reset");
   setText("playbackRateLabel", "playbackRateLabel");
+  timelineStartHandle.setAttribute("aria-label", t("timelineStartHandleAria"));
+  timelineEndHandle.setAttribute("aria-label", t("timelineEndHandleAria"));
   setHtml("legendTarget", "legendTarget");
   setHtml("legendPath", "legendPath");
   setHtml("legendFit", "legendFit");
@@ -1865,7 +1884,7 @@ function resetState(keepVideo = true) {
   clearCanvasMessage(keepVideo ? "canvasMoveAndMark" : "statusSelectVideo");
 }
 
-function drawFrame(point = trackerState.selectedPoint) {
+function drawFrame(point = (hideTimelineMarker ? null : getDisplayedPointAtTime(video.currentTime || 0))) {
   if (!trackerState.videoWidth || !trackerState.videoHeight) {
     clearCanvasMessage("statusSelectVideo");
     return;
@@ -2120,6 +2139,109 @@ function seekVideo(time) {
   });
 }
 
+function getDisplayedPointAtTime(time) {
+  if (trackerState.samples.length) {
+    let closestSample = trackerState.samples[0];
+    let closestDistance = Math.abs(closestSample.t - time);
+
+    for (let index = 1; index < trackerState.samples.length; index += 1) {
+      const sample = trackerState.samples[index];
+      const sampleDistance = Math.abs(sample.t - time);
+
+      if (sampleDistance < closestDistance) {
+        closestSample = sample;
+        closestDistance = sampleDistance;
+      }
+    }
+
+    return {
+      x: closestSample.x,
+      y: closestSample.y
+    };
+  }
+
+  return trackerState.selectedPoint ? { ...trackerState.selectedPoint } : null;
+}
+
+async function queueTimelineSeek(time) {
+  pendingTimelineSeek = time;
+
+  if (timelineSeekInFlight) {
+    return;
+  }
+
+  timelineSeekInFlight = true;
+
+  try {
+    while (pendingTimelineSeek !== null) {
+      const nextTime = pendingTimelineSeek;
+      pendingTimelineSeek = null;
+      await seekAndRender(nextTime, getDisplayedPointAtTime(nextTime));
+    }
+  } finally {
+    timelineSeekInFlight = false;
+  }
+}
+
+function getTimelineTimeFromClientX(clientX) {
+  const duration = Number.isFinite(video.duration) ? video.duration : 0;
+  const rect = timelineRangeWrap.getBoundingClientRect();
+  const ratio = rect.width > 0
+    ? clamp((clientX - rect.left) / rect.width, 0, 1)
+    : 0;
+
+  return ratio * duration;
+}
+
+function updateAnalysisBoundary(boundary, rawTime) {
+  const duration = Number.isFinite(video.duration) ? video.duration : 0;
+  const otherStart = clamp(Number.parseFloat(startTimeInput.value) || 0, 0, duration);
+  const otherEnd = clamp(Number.parseFloat(endTimeInput.value) || duration, 0, duration);
+  const minimumGap = duration > 0 ? Math.min(0.01, duration) : 0;
+
+  let nextTime = clamp(rawTime, 0, duration);
+
+  if (boundary === "start") {
+    nextTime = Math.min(nextTime, Math.max(otherEnd - minimumGap, 0));
+    startTimeInput.value = formatNumber(nextTime, 2);
+  } else {
+    nextTime = Math.max(nextTime, Math.min(otherStart + minimumGap, duration));
+    endTimeInput.value = formatNumber(nextTime, 2);
+  }
+
+  syncTimelineControls();
+  return nextTime;
+}
+
+function updateDraggedBoundaryFromPointer(clientX) {
+  if (!activeTimelineBoundary || !video.src || trackerState.isTracking) {
+    return;
+  }
+
+  stopPreview(false);
+  const targetTime = updateAnalysisBoundary(
+    activeTimelineBoundary,
+    getTimelineTimeFromClientX(clientX)
+  );
+  timelineCurrentLabel.textContent = formatTime(targetTime);
+  queueTimelineSeek(targetTime).catch((error) => {
+    setStatus(error.message, true);
+  });
+}
+
+function finishTimelineBoundaryDrag() {
+  activeTimelineBoundary = null;
+  hideTimelineMarker = false;
+  redrawCurrentState();
+}
+
+function maybeRestoreTimelineMarker() {
+  if (!activeTimelineBoundary && hideTimelineMarker) {
+    hideTimelineMarker = false;
+    redrawCurrentState();
+  }
+}
+
 function waitForVideoReady() {
   return new Promise((resolve, reject) => {
     if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
@@ -2155,8 +2277,8 @@ function syncTimelineControls() {
   timelineRange.max = String(duration || 0);
   timelineRange.value = String(currentTime);
   timelineRange.disabled = !hasVideo || trackerState.isTracking;
-  timelineRange.parentElement.style.setProperty("--start-percent", `${duration ? (startTime / duration) * 100 : 0}%`);
-  timelineRange.parentElement.style.setProperty("--end-percent", `${duration ? (endTime / duration) * 100 : 100}%`);
+  timelineRangeWrap.style.setProperty("--start-percent", `${duration ? (startTime / duration) * 100 : 0}%`);
+  timelineRangeWrap.style.setProperty("--end-percent", `${duration ? (endTime / duration) * 100 : 100}%`);
   playPauseBtn.disabled = !hasVideo || trackerState.isTracking;
   playPauseBtn.textContent = trackerState.isPreviewing ? "❚❚" : "▶";
   playPauseBtn.classList.toggle("player-bar__toggle--play", !trackerState.isPreviewing);
@@ -2169,14 +2291,16 @@ function syncTimelineControls() {
   manualModeBtn.disabled = !hasVideo || trackerState.isTracking;
   manualModeBtn.classList.toggle("button--active", trackerState.manualMode);
   manualModeBtn.textContent = trackerState.manualMode ? t("manualModeExit") : t("manualMode");
+  timelineStartHandle.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
+  timelineEndHandle.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
   timelineCurrentLabel.textContent = formatTime(currentTime);
   timelineStartLabel.textContent = t("timelineStart", { time: formatTime(startTime) });
   timelineEndLabel.textContent = t("timelineEnd", { time: formatTime(endTime) });
 }
 
-async function seekAndRender(time) {
+async function seekAndRender(time, point = getDisplayedPointAtTime(time)) {
   await seekVideo(time);
-  drawFrame();
+  drawFrame(point);
   syncTimelineControls();
 }
 
@@ -2486,7 +2610,7 @@ function stopPreview(sync = true) {
 
 function redrawCurrentState() {
   if (trackerState.videoWidth && trackerState.videoHeight) {
-    drawFrame();
+    drawFrame(getDisplayedPointAtTime(video.currentTime || 0));
   } else {
     clearCanvasMessage("statusSelectVideo");
   }
@@ -2900,6 +3024,60 @@ document.addEventListener("click", (event) => {
 
   closeInfoTooltips();
 });
+
+function beginTimelineBoundaryDrag(boundary, event) {
+  if (!video.src || trackerState.isTracking || trackerState.isPreviewing) {
+    return;
+  }
+
+  event.preventDefault();
+  hideTimelineMarker = true;
+  activeTimelineBoundary = boundary;
+  updateDraggedBoundaryFromPointer(event.clientX);
+}
+
+window.addEventListener("pointermove", (event) => {
+  if (!activeTimelineBoundary) {
+    return;
+  }
+
+  updateDraggedBoundaryFromPointer(event.clientX);
+});
+
+window.addEventListener("pointerup", finishTimelineBoundaryDrag);
+window.addEventListener("pointercancel", finishTimelineBoundaryDrag);
+window.addEventListener("pointerup", maybeRestoreTimelineMarker);
+window.addEventListener("pointercancel", maybeRestoreTimelineMarker);
+
+timelineStartHandle.addEventListener("pointerdown", (event) => {
+  beginTimelineBoundaryDrag("start", event);
+});
+
+timelineEndHandle.addEventListener("pointerdown", (event) => {
+  beginTimelineBoundaryDrag("end", event);
+});
+
+timelineRange.addEventListener("pointerdown", () => {
+  if (!video.src || trackerState.isTracking) {
+    return;
+  }
+
+  hideTimelineMarker = true;
+});
+
+const restoreTimelineMarker = () => {
+  if (!hideTimelineMarker || activeTimelineBoundary) {
+    return;
+  }
+
+  hideTimelineMarker = false;
+  redrawCurrentState();
+};
+
+timelineRange.addEventListener("pointerup", restoreTimelineMarker);
+timelineRange.addEventListener("pointercancel", restoreTimelineMarker);
+timelineRange.addEventListener("change", restoreTimelineMarker);
+
 timelineRange.addEventListener("input", async () => {
   if (!video.src || trackerState.isTracking) {
     return;
@@ -2908,7 +3086,7 @@ timelineRange.addEventListener("input", async () => {
   timelineCurrentLabel.textContent = formatTime(targetTime);
   stopPreview(false);
   try {
-    await seekAndRender(targetTime);
+    await queueTimelineSeek(targetTime);
   } catch (error) {
     setStatus(error.message, true);
   }
