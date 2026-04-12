@@ -35,11 +35,16 @@ const canvasHint = document.getElementById("canvasHint");
 const selectionStatus = document.getElementById("selectionStatus");
 const selectionToast = document.getElementById("selectionToast");
 const summaryGrid = document.getElementById("summaryGrid");
+const fitToggleInput = document.getElementById("fitToggle");
+const fitToggleHint = document.getElementById("fitToggleHint");
+const fitPanel = document.getElementById("fitPanel");
+const fitSummaryGrid = document.getElementById("fitSummaryGrid");
 const video = document.getElementById("sourceVideo");
 const canvas = document.getElementById("videoCanvas");
 const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const tableBody = document.querySelector("#resultsTable tbody");
 const tableHeadRow = document.querySelector("#resultsTable thead tr");
+const legendFit = document.getElementById("legendFit");
 
 const offscreenCanvas = document.createElement("canvas");
 const offscreenCtx = offscreenCanvas.getContext("2d", { willReadFrequently: true });
@@ -47,6 +52,7 @@ const themeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 const THEME_STORAGE_KEY = "trayectoria-theme";
 const LANGUAGE_STORAGE_KEY = "trayectoria-language";
 const SUPPORTED_LANGUAGES = ["es", "ca", "gl", "eu", "en"];
+const FIT_COLOR = "#3a78b3";
 
 const translations = {
   es: {
@@ -54,7 +60,7 @@ const translations = {
     languageLabel: "Idioma",
     languageAuto: "Auto",
     languageEs: "Español",
-    languageCa: "Català (Catalunya)",
+    languageCa: "Català",
     languageGl: "Galego",
     languageEu: "Euskara",
     languageEn: "English",
@@ -102,16 +108,42 @@ const translations = {
     timelineEnd: "Fin: {time}",
     legendTarget: '<i class="dot dot--target"></i>Punto seguido',
     legendPath: '<i class="dot dot--path"></i>Trayectoria',
+    legendFit: '<i class="dot dot--fit"></i>Ajuste teórico',
     manualMode: "Modo manual",
     manualModeExit: "Salir manual",
+    manualModeHelp: "Permite marcar a mano la posicion del objeto en distintos instantes si el seguimiento automatico falla.",
     calibrateScale: "Calibrar escala",
+    calibrateScaleHelp: "Sirve para decirle al programa cuanto mide una distancia real y pasar de pixeles a unidades como metros.",
     startTracking: "Iniciar seguimiento",
+    startTrackingHelp: "Hace que el programa siga automaticamente el objeto desde el punto marcado y calcule su trayectoria.",
     statusSelectVideo: "Selecciona un vídeo para empezar.",
     chartsTitle: "3. Gráficas",
     chartXTitle: "Posición horizontal x(t)",
     chartYTitle: "Posición vertical y(t)",
     chartVTitle: "Velocidad instantánea v(t)",
     chartXYTitle: "Recorrido en el plano x-y",
+    chartXHelp: "Muestra como cambia la posicion horizontal con el tiempo. Si la linea sube, el objeto avanza hacia la derecha.",
+    chartYHelp: "Muestra como cambia la altura con el tiempo. Sirve para ver si el objeto sube, baja o llega a un punto maximo.",
+    chartVHelp: "Muestra lo rapido que se mueve el objeto en cada instante. Cuanto mas alto este el valor, mayor es la rapidez.",
+    chartXYHelp: "Dibuja la trayectoria vista de lado, usando la posicion horizontal y la vertical a la vez.",
+    fitToggleLabel: "Mostrar ajuste teórico",
+    fitToggleHint: "Superpone un modelo parabólico ajustado a la trayectoria medida.",
+    fitUnavailableHint: "Necesita al menos 3 puntos de seguimiento para calcular el ajuste.",
+    fitPanelTitle: "Ajuste teórico",
+    fitPanelLead: "Comparativa con un modelo sin rozamiento ajustado a los datos medidos.",
+    fitModelLabel: "Modelo",
+    fitModelValue: "x(t) = x0 + vx0*t; y(t) = y0 + vy0*t - 0.5*g*t^2",
+    fitVxLabel: "Velocidad inicial horizontal",
+    fitVyLabel: "Velocidad inicial vertical",
+    fitVxHelp: "Es la velocidad horizontal con la que el modelo supone que empieza el movimiento.",
+    fitVyHelp: "Es la velocidad vertical con la que el modelo supone que empieza el movimiento.",
+    fitGravityLabel: "g ajustada",
+    fitRmseLabel: "Error RMS",
+    fitGravityHelp: "Es la aceleracion vertical que mejor encaja con la trayectoria del video. Si todo esta bien calibrado, deberia acercarse a 9.8 m/s².",
+    fitRmseHelp: "Mide cuanto se separa, de media, el ajuste teorico de los puntos reales. Cuanto mas pequeno, mejor encaja el modelo.",
+    infoTooltipLabel: "Explicacion",
+    fitMeasuredSeries: "Medida",
+    fitAdjustedSeries: "Ajuste",
     summaryTitle: "Resumen",
     summaryDuration: "Tiempo total",
     summaryDx: "Desplazamiento horizontal",
@@ -119,6 +151,12 @@ const translations = {
     summaryDistance: "Distancia recorrida",
     summaryAverageSpeed: "Rapidez media",
     summaryMaxSpeed: "Velocidad máxima",
+    summaryDurationHelp: "Es el tiempo que dura el tramo analizado, desde el primer punto hasta el ultimo.",
+    summaryDxHelp: "Indica cuanto se ha movido el objeto en horizontal entre el inicio y el final.",
+    summaryDyHelp: "Indica cuanto ha cambiado la altura entre el inicio y el final.",
+    summaryDistanceHelp: "Es la longitud total del camino recorrido, sumando todos los pequenos desplazamientos.",
+    summaryAverageSpeedHelp: "Es la rapidez media de todo el recorrido: distancia total dividida entre tiempo total.",
+    summaryMaxSpeedHelp: "Es la rapidez mas alta alcanzada en algun momento del seguimiento.",
     resultsTitle: "Datos obtenidos",
     exportCsv: "Exportar CSV",
     footerText: "Herramienta estática preparada para GitHub Pages. Las coordenadas se expresan respecto al primer punto del seguimiento.",
@@ -204,7 +242,7 @@ const translations = {
     languageLabel: "Idioma",
     languageAuto: "Auto",
     languageEs: "Español",
-    languageCa: "Català (Catalunya)",
+    languageCa: "Català",
     languageGl: "Galego",
     languageEu: "Euskara",
     languageEn: "English",
@@ -252,16 +290,42 @@ const translations = {
     timelineEnd: "Final: {time}",
     legendTarget: '<i class="dot dot--target"></i>Punt seguit',
     legendPath: '<i class="dot dot--path"></i>Trajectòria',
+    legendFit: '<i class="dot dot--fit"></i>Ajust teòric',
     manualMode: "Mode manual",
     manualModeExit: "Surt del manual",
+    manualModeHelp: "Permet marcar a ma la posicio de l'objecte en diferents instants si el seguiment automatic falla.",
     calibrateScale: "Calibrar escala",
+    calibrateScaleHelp: "Serveix per dir al programa quant mesura una distancia real i passar de pixels a unitats com metres.",
     startTracking: "Iniciar seguiment",
+    startTrackingHelp: "Fa que el programa segueixi automaticament l'objecte des del punt marcat i calculi la trajectoria.",
     statusSelectVideo: "Selecciona un vídeo per començar.",
     chartsTitle: "3. Gràfiques",
     chartXTitle: "Posició horitzontal x(t)",
     chartYTitle: "Posició vertical y(t)",
     chartVTitle: "Velocitat instantània v(t)",
     chartXYTitle: "Recorregut en el pla x-y",
+    chartXHelp: "Mostra com canvia la posicio horitzontal amb el temps. Si la linia puja, l'objecte avanca cap a la dreta.",
+    chartYHelp: "Mostra com canvia l'altura amb el temps. Serveix per veure si l'objecte puja, baixa o arriba a un punt maxim.",
+    chartVHelp: "Mostra com de rapid es mou l'objecte en cada instant. Com mes alt sigui el valor, mes gran es la rapidesa.",
+    chartXYHelp: "Dibuixa la trajectoria vista de costat, fent servir alhora la posicio horitzontal i la vertical.",
+    fitToggleLabel: "Mostra l'ajust teòric",
+    fitToggleHint: "Superposa un model parabòlic ajustat a la trajectòria mesurada.",
+    fitUnavailableHint: "Calen almenys 3 punts de seguiment per calcular l'ajust.",
+    fitPanelTitle: "Ajust teòric",
+    fitPanelLead: "Comparativa amb un model sense fregament ajustat a les dades mesurades.",
+    fitModelLabel: "Model",
+    fitModelValue: "x(t) = x0 + vx0*t; y(t) = y0 + vy0*t - 0.5*g*t^2",
+    fitVxLabel: "Velocitat inicial horitzontal",
+    fitVyLabel: "Velocitat inicial vertical",
+    fitVxHelp: "Es la velocitat horitzontal amb que el model suposa que comenca el moviment.",
+    fitVyHelp: "Es la velocitat vertical amb que el model suposa que comenca el moviment.",
+    fitGravityLabel: "g ajustada",
+    fitRmseLabel: "Error RMS",
+    fitGravityHelp: "Es l'acceleracio vertical que encaixa millor amb la trajectoria del video. Si tot esta ben calibrat, hauria d'apropar-se a 9.8 m/s².",
+    fitRmseHelp: "Mesura quant se separa, de mitjana, l'ajust teoric dels punts reals. Com mes petit, millor encaixa el model.",
+    infoTooltipLabel: "Explicacio",
+    fitMeasuredSeries: "Mesura",
+    fitAdjustedSeries: "Ajust",
     summaryTitle: "Resum",
     summaryDuration: "Temps total",
     summaryDx: "Desplaçament horitzontal",
@@ -269,6 +333,12 @@ const translations = {
     summaryDistance: "Distància recorreguda",
     summaryAverageSpeed: "Rapidesa mitjana",
     summaryMaxSpeed: "Velocitat màxima",
+    summaryDurationHelp: "Es el temps que dura el tram analitzat, des del primer punt fins a l'ultim.",
+    summaryDxHelp: "Indica quant s'ha mogut l'objecte en horitzontal entre l'inici i el final.",
+    summaryDyHelp: "Indica quant ha canviat l'altura entre l'inici i el final.",
+    summaryDistanceHelp: "Es la longitud total del cami recorregut, sumant tots els petits desplacaments.",
+    summaryAverageSpeedHelp: "Es la rapidesa mitjana de tot el recorregut: distancia total dividida pel temps total.",
+    summaryMaxSpeedHelp: "Es la rapidesa mes alta assolida en algun moment del seguiment.",
     resultsTitle: "Dades obtingudes",
     exportCsv: "Exporta CSV",
     footerText: "Eina estàtica preparada per a GitHub Pages. Les coordenades s'expressen respecte del primer punt del seguiment.",
@@ -354,7 +424,7 @@ const translations = {
     languageLabel: "Idioma",
     languageAuto: "Auto",
     languageEs: "Español",
-    languageCa: "Català (Catalunya)",
+    languageCa: "Català",
     languageGl: "Galego",
     languageEu: "Euskara",
     languageEn: "English",
@@ -402,16 +472,42 @@ const translations = {
     timelineEnd: "Fin: {time}",
     legendTarget: '<i class="dot dot--target"></i>Punto seguido',
     legendPath: '<i class="dot dot--path"></i>Traxectoria',
+    legendFit: '<i class="dot dot--fit"></i>Ajuste teórico',
     manualMode: "Modo manual",
     manualModeExit: "Saír do manual",
+    manualModeHelp: "Permite marcar a man a posicion do obxecto en distintos instantes se o seguimento automatico falla.",
     calibrateScale: "Calibrar escala",
+    calibrateScaleHelp: "Serve para dicirlle ao programa canto mide unha distancia real e pasar de pixeles a unidades como metros.",
     startTracking: "Iniciar seguimento",
+    startTrackingHelp: "Fai que o programa siga automaticamente o obxecto desde o punto marcado e calcule a sua traxectoria.",
     statusSelectVideo: "Selecciona un vídeo para comezar.",
     chartsTitle: "3. Gráficas",
     chartXTitle: "Posición horizontal x(t)",
     chartYTitle: "Posición vertical y(t)",
     chartVTitle: "Velocidade instantánea v(t)",
     chartXYTitle: "Percorrido no plano x-y",
+    chartXHelp: "Mostra como cambia a posicion horizontal co tempo. Se a liña sobe, o obxecto avanza cara á dereita.",
+    chartYHelp: "Mostra como cambia a altura co tempo. Serve para ver se o obxecto sobe, baixa ou chega a un punto maximo.",
+    chartVHelp: "Mostra o rapido que se move o obxecto en cada instante. Canto mais alto sexa o valor, maior e a rapidez.",
+    chartXYHelp: "Debuxa a traxectoria vista de lado, usando a posicion horizontal e a vertical ao mesmo tempo.",
+    fitToggleLabel: "Mostrar axuste teórico",
+    fitToggleHint: "Superpón un modelo parabólico axustado á traxectoria medida.",
+    fitUnavailableHint: "Fan falta polo menos 3 puntos de seguimento para calcular o axuste.",
+    fitPanelTitle: "Axuste teórico",
+    fitPanelLead: "Comparativa cun modelo sen rozamento axustado aos datos medidos.",
+    fitModelLabel: "Modelo",
+    fitModelValue: "x(t) = x0 + vx0*t; y(t) = y0 + vy0*t - 0.5*g*t^2",
+    fitVxLabel: "Velocidade inicial horizontal",
+    fitVyLabel: "Velocidade inicial vertical",
+    fitVxHelp: "E a velocidade horizontal coa que o modelo supón que comeza o movemento.",
+    fitVyHelp: "E a velocidade vertical coa que o modelo supón que comeza o movemento.",
+    fitGravityLabel: "g axustada",
+    fitRmseLabel: "Erro RMS",
+    fitGravityHelp: "E a aceleracion vertical que mellor encaixa coa traxectoria do video. Se todo esta ben calibrado, deberia achegarse a 9.8 m/s².",
+    fitRmseHelp: "Mide canto se separa, de media, o axuste teorico dos puntos reais. Canto mais pequeno, mellor encaixa o modelo.",
+    infoTooltipLabel: "Explicacion",
+    fitMeasuredSeries: "Medida",
+    fitAdjustedSeries: "Axuste",
     summaryTitle: "Resumo",
     summaryDuration: "Tempo total",
     summaryDx: "Desprazamento horizontal",
@@ -419,6 +515,12 @@ const translations = {
     summaryDistance: "Distancia percorrida",
     summaryAverageSpeed: "Rapidez media",
     summaryMaxSpeed: "Velocidade máxima",
+    summaryDurationHelp: "E o tempo que dura o tramo analizado, desde o primeiro punto ata o ultimo.",
+    summaryDxHelp: "Indica canto se moveu o obxecto en horizontal entre o inicio e o final.",
+    summaryDyHelp: "Indica canto cambiou a altura entre o inicio e o final.",
+    summaryDistanceHelp: "E a lonxitude total do camiño percorrido, sumando todos os pequenos desprazamentos.",
+    summaryAverageSpeedHelp: "E a rapidez media de todo o percorrido: distancia total dividida entre tempo total.",
+    summaryMaxSpeedHelp: "E a rapidez mais alta alcanzada nalgún momento do seguimento.",
     resultsTitle: "Datos obtidos",
     exportCsv: "Exportar CSV",
     footerText: "Ferramenta estática preparada para GitHub Pages. As coordenadas exprésanse respecto do primeiro punto do seguimento.",
@@ -504,7 +606,7 @@ const translations = {
     languageLabel: "Hizkuntza",
     languageAuto: "Auto",
     languageEs: "Español",
-    languageCa: "Català (Catalunya)",
+    languageCa: "Català",
     languageGl: "Galego",
     languageEu: "Euskara",
     languageEn: "English",
@@ -552,16 +654,42 @@ const translations = {
     timelineEnd: "Amaiera: {time}",
     legendTarget: '<i class="dot dot--target"></i>Jarraitutako puntua',
     legendPath: '<i class="dot dot--path"></i>Ibilbidea',
+    legendFit: '<i class="dot dot--fit"></i>Doikuntza teorikoa',
     manualMode: "Eskuzko modua",
     manualModeExit: "Irten eskuzkotik",
+    manualModeHelp: "Jarraipen automatikoak huts egiten badu, objektuaren posizioa eskuz markatzeko balio du.",
     calibrateScale: "Eskala kalibratu",
+    calibrateScaleHelp: "Programari benetako distantzia batek zenbat neurtzen duen esateko balio du, pixelak metro bezalako unitateetara pasatzeko.",
     startTracking: "Jarraipena hasi",
+    startTrackingHelp: "Programak markatutako puntutik aurrera objektua automatikoki jarrai dezan eta ibilbidea kalkula dezan egiten du.",
     statusSelectVideo: "Hautatu bideo bat hasteko.",
     chartsTitle: "3. Grafikoak",
     chartXTitle: "Posizio horizontala x(t)",
     chartYTitle: "Posizio bertikala y(t)",
     chartVTitle: "Berehalako abiadura v(t)",
     chartXYTitle: "Ibilbidea x-y planoan",
+    chartXHelp: "Denborarekin posizio horizontala nola aldatzen den erakusten du. Lerroa gora badoa, objektua eskuinerantz doa.",
+    chartYHelp: "Altura denborarekin nola aldatzen den erakusten du. Objektua igotzen, jaisten edo puntu gorenera iristen den ikusteko balio du.",
+    chartVHelp: "Objektua une bakoitzean zenbateko lastertasunez mugitzen den erakusten du. Balioa zenbat eta handiagoa izan, orduan eta handiagoa da abiadura.",
+    chartXYHelp: "Ibilbidea albotik marrazten du, posizio horizontala eta bertikala batera erabiliz.",
+    fitToggleLabel: "Erakutsi doikuntza teorikoa",
+    fitToggleHint: "Neurtutako ibilbidera egokitutako eredu parabolikoa gainjartzen du.",
+    fitUnavailableHint: "Gutxienez 3 jarraipen-puntu behar dira doikuntza kalkulatzeko.",
+    fitPanelTitle: "Doikuntza teorikoa",
+    fitPanelLead: "Neurtutako datuetara egokitutako marruskadurarik gabeko ereduarekin alderaketa.",
+    fitModelLabel: "Eredua",
+    fitModelValue: "x(t) = x0 + vx0*t; y(t) = y0 + vy0*t - 0.5*g*t^2",
+    fitVxLabel: "Hasierako abiadura horizontala",
+    fitVyLabel: "Hasierako abiadura bertikala",
+    fitVxHelp: "Ereduak mugimendua hastean duen abiadura horizontala da.",
+    fitVyHelp: "Ereduak mugimendua hastean duen abiadura bertikala da.",
+    fitGravityLabel: "g doitua",
+    fitRmseLabel: "RMS errorea",
+    fitGravityHelp: "Bideoaren ibilbidearekin ondoen egokitzen den azelerazio bertikala da. Dena ondo kalibratuta badago, 9.8 m/s² inguruan egon beharko luke.",
+    fitRmseHelp: "Doikuntza teorikoa benetako puntuetatik batez beste zenbat urruntzen den neurtzen du. Zenbat eta txikiagoa, orduan eta hobea da eredua.",
+    infoTooltipLabel: "Azalpena",
+    fitMeasuredSeries: "Neurtua",
+    fitAdjustedSeries: "Doikuntza",
     summaryTitle: "Laburpena",
     summaryDuration: "Denbora osoa",
     summaryDx: "Desplazamendu horizontala",
@@ -569,6 +697,12 @@ const translations = {
     summaryDistance: "Egindako distantzia",
     summaryAverageSpeed: "Batez besteko abiadura",
     summaryMaxSpeed: "Abiadura maximoa",
+    summaryDurationHelp: "Aztertutako zatiak zenbat irauten duen da, lehen puntutik azkenera.",
+    summaryDxHelp: "Hasieraren eta amaieraren artean objektua horizontalean zenbat mugitu den adierazten du.",
+    summaryDyHelp: "Hasieraren eta amaieraren artean altuera zenbat aldatu den adierazten du.",
+    summaryDistanceHelp: "Egindako bide osoaren luzera da, desplazamendu txiki guztiak batuta.",
+    summaryAverageSpeedHelp: "Ibilbide osoaren batez besteko abiadura da: distantzia osoa denbora osoarekin zatituta.",
+    summaryMaxSpeedHelp: "Jarraipeneko uneren batean lortutako abiadurarik handiena da.",
     resultsTitle: "Lortutako datuak",
     exportCsv: "CSV esportatu",
     footerText: "GitHub Pages-erako prestatutako tresna estatikoa. Koordenatuak jarraipeneko lehen puntuarekiko adierazten dira.",
@@ -654,7 +788,7 @@ const translations = {
     languageLabel: "Language",
     languageAuto: "Auto",
     languageEs: "Español",
-    languageCa: "Català (Catalunya)",
+    languageCa: "Català",
     languageGl: "Galego",
     languageEu: "Euskara",
     languageEn: "English",
@@ -702,16 +836,42 @@ const translations = {
     timelineEnd: "End: {time}",
     legendTarget: '<i class="dot dot--target"></i>Tracked point',
     legendPath: '<i class="dot dot--path"></i>Path',
+    legendFit: '<i class="dot dot--fit"></i>Theoretical fit',
     manualMode: "Manual mode",
     manualModeExit: "Exit manual",
+    manualModeHelp: "Lets you mark the object's position by hand at different instants if automatic tracking fails.",
     calibrateScale: "Calibrate scale",
+    calibrateScaleHelp: "Tells the program how long a real distance is so it can convert pixels into units such as meters.",
     startTracking: "Start tracking",
+    startTrackingHelp: "Makes the program automatically follow the object from the marked point and calculate its path.",
     statusSelectVideo: "Select a video to begin.",
     chartsTitle: "3. Graphs",
     chartXTitle: "Horizontal position x(t)",
     chartYTitle: "Vertical position y(t)",
     chartVTitle: "Instantaneous speed v(t)",
     chartXYTitle: "Path in the x-y plane",
+    chartXHelp: "Shows how the horizontal position changes over time. If the line goes up, the object moves to the right.",
+    chartYHelp: "Shows how the height changes over time. It helps you see whether the object rises, falls or reaches a highest point.",
+    chartVHelp: "Shows how fast the object moves at each instant. The higher the value, the greater the speed.",
+    chartXYHelp: "Draws the path seen from the side, using horizontal and vertical position together.",
+    fitToggleLabel: "Show theoretical fit",
+    fitToggleHint: "Overlays a parabolic model fitted to the measured trajectory.",
+    fitUnavailableHint: "At least 3 tracked points are needed to compute the fit.",
+    fitPanelTitle: "Theoretical fit",
+    fitPanelLead: "Comparison with a drag-free model fitted to the measured data.",
+    fitModelLabel: "Model",
+    fitModelValue: "x(t) = x0 + vx0*t; y(t) = y0 + vy0*t - 0.5*g*t^2",
+    fitVxLabel: "Horizontal initial velocity",
+    fitVyLabel: "Vertical initial velocity",
+    fitVxHelp: "It is the horizontal velocity that the model assumes at the start of the motion.",
+    fitVyHelp: "It is the vertical velocity that the model assumes at the start of the motion.",
+    fitGravityLabel: "Fitted g",
+    fitRmseLabel: "RMS error",
+    fitGravityHelp: "It is the vertical acceleration that best matches the video trajectory. If everything is well calibrated, it should be close to 9.8 m/s².",
+    fitRmseHelp: "It measures how far, on average, the theoretical fit is from the real points. The smaller it is, the better the model matches.",
+    infoTooltipLabel: "Explanation",
+    fitMeasuredSeries: "Measured",
+    fitAdjustedSeries: "Fit",
     summaryTitle: "Summary",
     summaryDuration: "Total time",
     summaryDx: "Horizontal displacement",
@@ -719,6 +879,12 @@ const translations = {
     summaryDistance: "Distance traveled",
     summaryAverageSpeed: "Average speed",
     summaryMaxSpeed: "Maximum speed",
+    summaryDurationHelp: "It is the duration of the analyzed segment, from the first point to the last one.",
+    summaryDxHelp: "It tells how much the object moved horizontally between the start and the end.",
+    summaryDyHelp: "It tells how much the height changed between the start and the end.",
+    summaryDistanceHelp: "It is the total length of the path traveled, adding all the small displacements.",
+    summaryAverageSpeedHelp: "It is the average speed for the whole motion: total distance divided by total time.",
+    summaryMaxSpeedHelp: "It is the highest speed reached at any moment during the tracking.",
     resultsTitle: "Recorded data",
     exportCsv: "Export CSV",
     footerText: "Static tool prepared for GitHub Pages. Coordinates are expressed relative to the first tracked point.",
@@ -1020,14 +1186,23 @@ function renderStaticTexts() {
   setText("playbackRateLabel", "playbackRateLabel");
   setHtml("legendTarget", "legendTarget");
   setHtml("legendPath", "legendPath");
+  setHtml("legendFit", "legendFit");
+  document.getElementById("manualModeHeading").innerHTML = buildHeadingWithInfo("manualMode", "manualModeHelp");
+  document.getElementById("calibrateHeading").innerHTML = buildHeadingWithInfo("calibrateScale", "calibrateScaleHelp");
+  document.getElementById("trackHeading").innerHTML = buildHeadingWithInfo("startTracking", "startTrackingHelp");
   setText("calibrateBtn", "calibrateScale");
   setText("trackBtn", "startTracking");
   setText("chartsTitle", "chartsTitle");
-  setText("chartXTitle", "chartXTitle");
-  setText("chartYTitle", "chartYTitle");
-  setText("chartVTitle", "chartVTitle");
-  setText("chartXYTitle", "chartXYTitle");
+  setText("fitToggleLabel", "fitToggleLabel");
+  setText("fitToggleHint", trackerState.theoreticalFit ? "fitToggleHint" : "fitUnavailableHint");
+  setHtml("chartXTitle", "chartXTitle");
+  document.getElementById("chartXTitle").innerHTML = buildHeadingWithInfo("chartXTitle", "chartXHelp");
+  document.getElementById("chartYTitle").innerHTML = buildHeadingWithInfo("chartYTitle", "chartYHelp");
+  document.getElementById("chartVTitle").innerHTML = buildHeadingWithInfo("chartVTitle", "chartVHelp");
+  document.getElementById("chartXYTitle").innerHTML = buildHeadingWithInfo("chartXYTitle", "chartXYHelp");
   setText("summaryTitle", "summaryTitle");
+  setText("fitPanelTitle", "fitPanelTitle");
+  setText("fitPanelLead", "fitPanelLead");
   setText("resultsTitle", "resultsTitle");
   setText("exportBtn", "exportCsv");
   setText("footerText", "footerText");
@@ -1070,11 +1245,10 @@ function updateThemeToggleLabel(theme) {
 }
 
 function refreshChartsForTheme() {
-  if (!trackerState.samples.length) {
+  if (!trackerState.samples.length && !trackerState.theoreticalFit) {
     return;
   }
-  resetChartsAndTable();
-  buildCharts();
+  rebuildResultsView();
 }
 
 function applyTheme(theme, persist = true) {
@@ -1105,6 +1279,8 @@ function createInitialState() {
       distance: 1,
       unit: "m"
     },
+    theoreticalFit: null,
+    showTheoreticalFit: false,
     sourceWidth: 0,
     sourceHeight: 0,
     videoWidth: 0,
@@ -1221,6 +1397,167 @@ function toPhysicalY(pixelY) {
   return upwardPixels / trackerState.scale.pixelsPerUnit;
 }
 
+function fromPhysicalX(value) {
+  const originX = trackerState.originPoint?.x ?? 0;
+  if (!trackerState.scale.pixelsPerUnit) {
+    return originX + value;
+  }
+  return originX + value * trackerState.scale.pixelsPerUnit;
+}
+
+function fromPhysicalY(value) {
+  const originY = trackerState.originPoint?.y ?? trackerState.videoHeight;
+  if (!trackerState.scale.pixelsPerUnit) {
+    return originY - value;
+  }
+  return originY - value * trackerState.scale.pixelsPerUnit;
+}
+
+function solveLinearSystem(matrix, vector) {
+  const size = vector.length;
+  const augmented = matrix.map((row, index) => [...row, vector[index]]);
+
+  for (let column = 0; column < size; column += 1) {
+    let pivotRow = column;
+    for (let row = column + 1; row < size; row += 1) {
+      if (Math.abs(augmented[row][column]) > Math.abs(augmented[pivotRow][column])) {
+        pivotRow = row;
+      }
+    }
+
+    if (Math.abs(augmented[pivotRow][column]) < 1e-10) {
+      return null;
+    }
+
+    if (pivotRow !== column) {
+      [augmented[column], augmented[pivotRow]] = [augmented[pivotRow], augmented[column]];
+    }
+
+    const pivot = augmented[column][column];
+    for (let cell = column; cell <= size; cell += 1) {
+      augmented[column][cell] /= pivot;
+    }
+
+    for (let row = 0; row < size; row += 1) {
+      if (row === column) {
+        continue;
+      }
+
+      const factor = augmented[row][column];
+      if (Math.abs(factor) < 1e-10) {
+        continue;
+      }
+
+      for (let cell = column; cell <= size; cell += 1) {
+        augmented[row][cell] -= factor * augmented[column][cell];
+      }
+    }
+  }
+
+  return augmented.map((row) => row[size]);
+}
+
+function fitPolynomial(xs, ys, degree) {
+  const size = degree + 1;
+  const powers = Array.from({ length: degree * 2 + 1 }, (_, power) => xs.reduce((sum, x) => sum + x ** power, 0));
+  const matrix = Array.from({ length: size }, (_, row) => (
+    Array.from({ length: size }, (_, column) => powers[row + column])
+  ));
+  const vector = Array.from({ length: size }, (_, row) => (
+    xs.reduce((sum, x, index) => sum + ys[index] * (x ** row), 0)
+  ));
+
+  return solveLinearSystem(matrix, vector);
+}
+
+function evaluatePolynomial(coefficients, value) {
+  return coefficients.reduce((sum, coefficient, power) => sum + coefficient * (value ** power), 0);
+}
+
+function computeTheoreticalFit() {
+  if (trackerState.samples.length < 3) {
+    return null;
+  }
+
+  const firstTime = trackerState.samples[0].t;
+  const points = trackerState.samples.map((sample) => ({
+    tRelative: sample.t - firstTime,
+    tAbsolute: sample.t,
+    x: toPhysicalX(sample.x),
+    y: toPhysicalY(sample.y)
+  }));
+  const distinctTimes = new Set(points.map((point) => point.tRelative.toFixed(6)));
+  const duration = points[points.length - 1].tRelative;
+
+  if (distinctTimes.size < 3 || duration <= 0) {
+    return null;
+  }
+
+  const xCoefficients = fitPolynomial(
+    points.map((point) => point.tRelative),
+    points.map((point) => point.x),
+    1
+  );
+  const yCoefficients = fitPolynomial(
+    points.map((point) => point.tRelative),
+    points.map((point) => point.y),
+    2
+  );
+
+  if (!xCoefficients || !yCoefficients) {
+    return null;
+  }
+
+  const predictions = points.map((point) => ({
+    tRelative: point.tRelative,
+    tAbsolute: point.tAbsolute,
+    x: evaluatePolynomial(xCoefficients, point.tRelative),
+    y: evaluatePolynomial(yCoefficients, point.tRelative)
+  }));
+  const denseSamples = Math.max(48, Math.min(220, points.length * 6));
+  const densePredictions = Array.from({ length: denseSamples }, (_, index) => {
+    const tRelative = denseSamples === 1 ? 0 : (duration * index) / (denseSamples - 1);
+    return {
+      tRelative,
+      tAbsolute: firstTime + tRelative,
+      x: evaluatePolynomial(xCoefficients, tRelative),
+      y: evaluatePolynomial(yCoefficients, tRelative)
+    };
+  });
+
+  const velocityPredictions = points.slice(1).map((point) => {
+    const vy = yCoefficients[1] + 2 * yCoefficients[2] * point.tRelative;
+    return {
+      t: Number(point.tAbsolute.toFixed(3)),
+      v: Math.hypot(xCoefficients[1], vy)
+    };
+  });
+
+  const errors = predictions.map((prediction, index) => {
+    const point = points[index];
+    const dx = point.x - prediction.x;
+    const dy = point.y - prediction.y;
+    return { dx, dy };
+  });
+  const rmseX = Math.sqrt(errors.reduce((sum, error) => sum + error.dx ** 2, 0) / errors.length);
+  const rmseY = Math.sqrt(errors.reduce((sum, error) => sum + error.dy ** 2, 0) / errors.length);
+  const rmseTotal = Math.sqrt(errors.reduce((sum, error) => sum + error.dx ** 2 + error.dy ** 2, 0) / errors.length);
+
+  return {
+    xCoefficients,
+    yCoefficients,
+    predictions,
+    densePredictions,
+    velocityPredictions,
+    vx0: xCoefficients[1],
+    vy0: yCoefficients[1],
+    g: -2 * yCoefficients[2],
+    rmseX,
+    rmseY,
+    rmseTotal
+  };
+}
+
 function disposeVideoUrl() {
   if (objectUrl) {
     URL.revokeObjectURL(objectUrl);
@@ -1246,6 +1583,8 @@ function resetChartsAndTable() {
     chartXY = null;
   }
   tableBody.innerHTML = "";
+  fitSummaryGrid.innerHTML = "";
+  fitPanel.hidden = true;
 }
 
 function getVelocityPoints() {
@@ -1263,18 +1602,103 @@ function getVelocityPoints() {
   });
 }
 
-function renderSummary() {
+function syncFitControls() {
+  const available = Boolean(trackerState.theoreticalFit);
+  fitToggleInput.disabled = !available;
+  fitToggleInput.checked = available && trackerState.showTheoreticalFit;
+  fitToggleHint.textContent = available ? t("fitToggleHint") : t("fitUnavailableHint");
+  legendFit.hidden = !(available && trackerState.showTheoreticalFit);
+}
+
+function buildInfoLabel(titleKey, helpKey) {
+  return `
+    <span class="summary-card__label-row">
+      <span>${t(titleKey)}</span>
+      <button
+        type="button"
+        class="info-button"
+        data-tooltip-key="${helpKey}"
+        aria-label="${t("infoTooltipLabel")}"
+        aria-expanded="false"
+      >?</button>
+      <span class="info-tooltip" hidden>${t(helpKey)}</span>
+    </span>
+  `;
+}
+
+function closeInfoTooltips(root = document) {
+  root.querySelectorAll(".info-button[aria-expanded='true']").forEach((button) => {
+    button.setAttribute("aria-expanded", "false");
+  });
+  root.querySelectorAll(".info-tooltip").forEach((tooltip) => {
+    tooltip.hidden = true;
+  });
+}
+
+function buildHeadingWithInfo(titleKey, helpKey) {
+  return `
+    <span class="title-with-info">
+      <span>${t(titleKey)}</span>
+      <button
+        type="button"
+        class="info-button"
+        data-tooltip-key="${helpKey}"
+        aria-label="${t("infoTooltipLabel")}"
+        aria-expanded="false"
+      >?</button>
+      <span class="info-tooltip" hidden>${t(helpKey)}</span>
+    </span>
+  `;
+}
+
+function renderFitPanel() {
+  const fit = trackerState.showTheoreticalFit ? trackerState.theoreticalFit : null;
+  fitPanel.hidden = !fit;
+  fitSummaryGrid.innerHTML = "";
+
+  if (!fit) {
+    return;
+  }
+
   const unit = trackerState.scale.pixelsPerUnit ? trackerState.scale.unit : "px";
 
+  fitSummaryGrid.innerHTML = `
+    <div class="summary-card">
+      <span class="summary-card__label">${t("fitModelLabel")}</span>
+      <strong class="summary-card__value summary-card__value--formula">${t("fitModelValue")}</strong>
+    </div>
+    <div class="summary-card">
+      ${buildInfoLabel("fitVxLabel", "fitVxHelp")}
+      <strong class="summary-card__value">${formatNumber(fit.vx0, 3)} ${unit}/s</strong>
+    </div>
+    <div class="summary-card">
+      ${buildInfoLabel("fitVyLabel", "fitVyHelp")}
+      <strong class="summary-card__value">${formatNumber(fit.vy0, 3)} ${unit}/s</strong>
+    </div>
+    <div class="summary-card">
+      ${buildInfoLabel("fitGravityLabel", "fitGravityHelp")}
+      <strong class="summary-card__value">${formatNumber(fit.g, 3)} ${unit}/s²</strong>
+    </div>
+    <div class="summary-card">
+      ${buildInfoLabel("fitRmseLabel", "fitRmseHelp")}
+      <strong class="summary-card__value">${formatNumber(fit.rmseTotal, 3)} ${unit}</strong>
+    </div>
+  `;
+}
+
+function renderSummary() {
+  const unit = trackerState.scale.pixelsPerUnit ? trackerState.scale.unit : "px";
+  const emptyCards = `
+    <div class="summary-card"><span class="summary-card__label-row"><span>${t("summaryDuration")}</span><button type="button" class="info-button" data-tooltip-key="summaryDurationHelp" aria-label="${t("infoTooltipLabel")}" aria-expanded="false">?</button><span class="info-tooltip" hidden>${t("summaryDurationHelp")}</span></span><strong class="summary-card__value">-</strong></div>
+    <div class="summary-card"><span class="summary-card__label-row"><span>${t("summaryDx")}</span><button type="button" class="info-button" data-tooltip-key="summaryDxHelp" aria-label="${t("infoTooltipLabel")}" aria-expanded="false">?</button><span class="info-tooltip" hidden>${t("summaryDxHelp")}</span></span><strong class="summary-card__value">-</strong></div>
+    <div class="summary-card"><span class="summary-card__label-row"><span>${t("summaryDy")}</span><button type="button" class="info-button" data-tooltip-key="summaryDyHelp" aria-label="${t("infoTooltipLabel")}" aria-expanded="false">?</button><span class="info-tooltip" hidden>${t("summaryDyHelp")}</span></span><strong class="summary-card__value">-</strong></div>
+    <div class="summary-card"><span class="summary-card__label-row"><span>${t("summaryDistance")}</span><button type="button" class="info-button" data-tooltip-key="summaryDistanceHelp" aria-label="${t("infoTooltipLabel")}" aria-expanded="false">?</button><span class="info-tooltip" hidden>${t("summaryDistanceHelp")}</span></span><strong class="summary-card__value">-</strong></div>
+    <div class="summary-card"><span class="summary-card__label-row"><span>${t("summaryAverageSpeed")}</span><button type="button" class="info-button" data-tooltip-key="summaryAverageSpeedHelp" aria-label="${t("infoTooltipLabel")}" aria-expanded="false">?</button><span class="info-tooltip" hidden>${t("summaryAverageSpeedHelp")}</span></span><strong class="summary-card__value">-</strong></div>
+    <div class="summary-card"><span class="summary-card__label-row"><span>${t("summaryMaxSpeed")}</span><button type="button" class="info-button" data-tooltip-key="summaryMaxSpeedHelp" aria-label="${t("infoTooltipLabel")}" aria-expanded="false">?</button><span class="info-tooltip" hidden>${t("summaryMaxSpeedHelp")}</span></span><strong class="summary-card__value">-</strong></div>
+  `;
+
   if (!trackerState.samples.length) {
-    summaryGrid.innerHTML = `
-      <div class="summary-card"><span class="summary-card__label">${t("summaryDuration")}</span><strong class="summary-card__value">-</strong></div>
-      <div class="summary-card"><span class="summary-card__label">${t("summaryDx")}</span><strong class="summary-card__value">-</strong></div>
-      <div class="summary-card"><span class="summary-card__label">${t("summaryDy")}</span><strong class="summary-card__value">-</strong></div>
-      <div class="summary-card"><span class="summary-card__label">${t("summaryDistance")}</span><strong class="summary-card__value">-</strong></div>
-      <div class="summary-card"><span class="summary-card__label">${t("summaryAverageSpeed")}</span><strong class="summary-card__value">-</strong></div>
-      <div class="summary-card"><span class="summary-card__label">${t("summaryMaxSpeed")}</span><strong class="summary-card__value">-</strong></div>
-    `;
+    summaryGrid.innerHTML = emptyCards;
     return;
   }
 
@@ -1299,27 +1723,27 @@ function renderSummary() {
 
   summaryGrid.innerHTML = `
     <div class="summary-card">
-      <span class="summary-card__label">${t("summaryDuration")}</span>
+      ${buildInfoLabel("summaryDuration", "summaryDurationHelp")}
       <strong class="summary-card__value">${formatNumber(duration, 3)} s</strong>
     </div>
     <div class="summary-card">
-      <span class="summary-card__label">${t("summaryDx")}</span>
+      ${buildInfoLabel("summaryDx", "summaryDxHelp")}
       <strong class="summary-card__value">${formatNumber(dx, 3)} ${unit}</strong>
     </div>
     <div class="summary-card">
-      <span class="summary-card__label">${t("summaryDy")}</span>
+      ${buildInfoLabel("summaryDy", "summaryDyHelp")}
       <strong class="summary-card__value">${formatNumber(dy, 3)} ${unit}</strong>
     </div>
     <div class="summary-card">
-      <span class="summary-card__label">${t("summaryDistance")}</span>
+      ${buildInfoLabel("summaryDistance", "summaryDistanceHelp")}
       <strong class="summary-card__value">${formatNumber(distance, 3)} ${unit}</strong>
     </div>
     <div class="summary-card">
-      <span class="summary-card__label">${t("summaryAverageSpeed")}</span>
+      ${buildInfoLabel("summaryAverageSpeed", "summaryAverageSpeedHelp")}
       <strong class="summary-card__value">${formatNumber(averageSpeed, 3)} ${unit}/s</strong>
     </div>
     <div class="summary-card">
-      <span class="summary-card__label">${t("summaryMaxSpeed")}</span>
+      ${buildInfoLabel("summaryMaxSpeed", "summaryMaxSpeedHelp")}
       <strong class="summary-card__value">${formatNumber(maxSpeed, 3)} ${unit}/s</strong>
     </div>
   `;
@@ -1327,8 +1751,11 @@ function renderSummary() {
 
 function rebuildResultsView() {
   resetChartsAndTable();
+  trackerState.theoreticalFit = computeTheoreticalFit();
   tableHeadRow.innerHTML = `<th>${t("tableTime")}</th><th>x</th><th>y</th>`;
+  syncFitControls();
   renderSummary();
+  renderFitPanel();
 
   if (!trackerState.samples.length) {
     exportBtn.disabled = true;
@@ -1377,6 +1804,25 @@ function drawFrame(point = trackerState.selectedPoint) {
   }
 
   drawTransformedVideo(ctx);
+
+  if (trackerState.showTheoreticalFit && trackerState.theoreticalFit?.densePredictions.length) {
+    ctx.save();
+    ctx.strokeStyle = FIT_COLOR;
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([10, 7]);
+    ctx.beginPath();
+    trackerState.theoreticalFit.densePredictions.forEach((sample, index) => {
+      const x = fromPhysicalX(sample.x);
+      const y = fromPhysicalY(sample.y);
+      if (index === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+    ctx.restore();
+  }
 
   if (trackerState.samples.length > 1) {
     ctx.save();
@@ -1645,6 +2091,8 @@ function syncTimelineControls() {
   timelineRange.parentElement.style.setProperty("--end-percent", `${duration ? (endTime / duration) * 100 : 100}%`);
   playPauseBtn.disabled = !hasVideo || trackerState.isTracking;
   playPauseBtn.textContent = trackerState.isPreviewing ? "❚❚" : "▶";
+  playPauseBtn.classList.toggle("player-bar__toggle--play", !trackerState.isPreviewing);
+  playPauseBtn.classList.toggle("player-bar__toggle--pause", trackerState.isPreviewing);
   playPauseBtn.setAttribute("aria-label", trackerState.isPreviewing ? t("playerPauseAria") : t("playerPlayAria"));
   setStartBtn.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
   setEndBtn.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
@@ -1664,7 +2112,7 @@ async function seekAndRender(time) {
   syncTimelineControls();
 }
 
-function buildChartOptions(xLabel, yLabel) {
+function buildChartOptions(xLabel, yLabel, showLegend = false) {
   const ink = getCssVar("--ink");
   const muted = getCssVar("--muted");
   const line = getCssVar("--line");
@@ -1674,7 +2122,12 @@ function buildChartOptions(xLabel, yLabel) {
     maintainAspectRatio: true,
     plugins: {
       legend: {
-        display: false
+        display: showLegend,
+        labels: {
+          color: ink,
+          usePointStyle: true,
+          boxWidth: 12
+        }
       }
     },
     scales: {
@@ -1708,7 +2161,7 @@ function buildChartOptions(xLabel, yLabel) {
   };
 }
 
-function buildPlaneChartOptions(xLabel, yLabel) {
+function buildPlaneChartOptions(xLabel, yLabel, showLegend = false) {
   const ink = getCssVar("--ink");
   const muted = getCssVar("--muted");
   const line = getCssVar("--line");
@@ -1718,7 +2171,12 @@ function buildPlaneChartOptions(xLabel, yLabel) {
     maintainAspectRatio: true,
     plugins: {
       legend: {
-        display: false
+        display: showLegend,
+        labels: {
+          color: ink,
+          usePointStyle: true,
+          boxWidth: 12
+        }
       }
     },
     scales: {
@@ -1760,77 +2218,124 @@ function buildCharts() {
   const yData = trackerState.samples.map((sample) => toPhysicalY(sample.y));
   const unit = trackerState.scale.pixelsPerUnit ? trackerState.scale.unit : "px";
   const velocityPoints = getVelocityPoints();
+  const fit = trackerState.showTheoreticalFit ? trackerState.theoreticalFit : null;
   const xyData = trackerState.samples.map((sample) => ({
     x: toPhysicalX(sample.x),
     y: toPhysicalY(sample.y)
   }));
+  const showLegend = Boolean(fit);
+  const xDatasets = [{
+    label: t("fitMeasuredSeries"),
+    data: xData,
+    borderColor: getCssVar("--accent"),
+    backgroundColor: "rgba(24, 103, 107, 0.18)",
+    tension: 0.2,
+    pointRadius: 2
+  }];
+  const yDatasets = [{
+    label: t("fitMeasuredSeries"),
+    data: yData,
+    borderColor: getCssVar("--warm"),
+    backgroundColor: "rgba(209, 121, 63, 0.18)",
+    tension: 0.2,
+    pointRadius: 2
+  }];
+  const vDatasets = [{
+    label: t("fitMeasuredSeries"),
+    data: velocityPoints.map((point) => point.v),
+    borderColor: "#e54f6d",
+    backgroundColor: "rgba(229, 79, 109, 0.18)",
+    tension: 0.2,
+    pointRadius: 2
+  }];
+  const xyDatasets = [{
+    label: t("fitMeasuredSeries"),
+    data: xyData,
+    showLine: true,
+    borderColor: getCssVar("--accent-strong"),
+    backgroundColor: "rgba(109, 201, 200, 0.22)",
+    pointBackgroundColor: getCssVar("--warm"),
+    pointBorderColor: getCssVar("--warm"),
+    pointRadius: 2,
+    tension: 0.18
+  }];
+
+  if (fit) {
+    xDatasets.push({
+      label: t("fitAdjustedSeries"),
+      data: fit.predictions.map((sample) => sample.x),
+      borderColor: FIT_COLOR,
+      backgroundColor: "rgba(58, 120, 179, 0.12)",
+      borderDash: [10, 6],
+      tension: 0,
+      pointRadius: 0
+    });
+    yDatasets.push({
+      label: t("fitAdjustedSeries"),
+      data: fit.predictions.map((sample) => sample.y),
+      borderColor: FIT_COLOR,
+      backgroundColor: "rgba(58, 120, 179, 0.12)",
+      borderDash: [10, 6],
+      tension: 0,
+      pointRadius: 0
+    });
+    vDatasets.push({
+      label: t("fitAdjustedSeries"),
+      data: fit.velocityPredictions.map((point) => point.v),
+      borderColor: FIT_COLOR,
+      backgroundColor: "rgba(58, 120, 179, 0.12)",
+      borderDash: [10, 6],
+      tension: 0,
+      pointRadius: 0
+    });
+    xyDatasets.push({
+      label: t("fitAdjustedSeries"),
+      data: fit.densePredictions.map((sample) => ({ x: sample.x, y: sample.y })),
+      showLine: true,
+      borderColor: FIT_COLOR,
+      backgroundColor: "rgba(58, 120, 179, 0.12)",
+      borderDash: [10, 6],
+      pointRadius: 0,
+      tension: 0
+    });
+  }
 
   chartX = new Chart(document.getElementById("chartX"), {
     type: "line",
     data: {
       labels,
-      datasets: [{
-        label: t("chartXAxis", { unit }),
-        data: xData,
-        borderColor: getCssVar("--accent"),
-        backgroundColor: "rgba(24, 103, 107, 0.18)",
-        tension: 0.2,
-        pointRadius: 2
-      }]
+      datasets: xDatasets
     },
-    options: buildChartOptions(t("chartTimeAxis"), t("chartXAxis", { unit }))
+    options: buildChartOptions(t("chartTimeAxis"), t("chartXAxis", { unit }), showLegend)
   });
 
   chartY = new Chart(document.getElementById("chartY"), {
     type: "line",
     data: {
       labels,
-      datasets: [{
-        label: t("chartYAxis", { unit }),
-        data: yData,
-        borderColor: getCssVar("--warm"),
-        backgroundColor: "rgba(209, 121, 63, 0.18)",
-        tension: 0.2,
-        pointRadius: 2
-      }]
+      datasets: yDatasets
     },
-    options: buildChartOptions(t("chartTimeAxis"), t("chartYAxis", { unit }))
+    options: buildChartOptions(t("chartTimeAxis"), t("chartYAxis", { unit }), showLegend)
   });
 
   chartV = new Chart(document.getElementById("chartV"), {
     type: "line",
     data: {
       labels: velocityPoints.map((point) => point.t),
-      datasets: [{
-        label: t("chartVAxis", { unit }),
-        data: velocityPoints.map((point) => point.v),
-        borderColor: "#e54f6d",
-        backgroundColor: "rgba(229, 79, 109, 0.18)",
-        tension: 0.2,
-        pointRadius: 2
-      }]
+      datasets: vDatasets
     },
-    options: buildChartOptions(t("chartTimeAxis"), t("chartVAxis", { unit }))
+    options: buildChartOptions(t("chartTimeAxis"), t("chartVAxis", { unit }), showLegend)
   });
 
   chartXY = new Chart(document.getElementById("chartXY"), {
     type: "scatter",
     data: {
-      datasets: [{
-        label: t("chartXYTitle"),
-        data: xyData,
-        showLine: true,
-        borderColor: getCssVar("--accent-strong"),
-        backgroundColor: "rgba(109, 201, 200, 0.22)",
-        pointBackgroundColor: getCssVar("--warm"),
-        pointBorderColor: getCssVar("--warm"),
-        pointRadius: 2,
-        tension: 0.18
-      }]
+      datasets: xyDatasets
     },
     options: buildPlaneChartOptions(
       t("chartXAxis", { unit }),
-      t("chartYAxis", { unit })
+      t("chartYAxis", { unit }),
+      showLegend
     )
   });
 }
@@ -2053,6 +2558,7 @@ async function startTracking() {
   trackerState.isTracking = true;
   trackerState.manualMode = false;
   trackerState.isCalibrating = false;
+  trackerState.calibrationPoints = [];
   trackerState.samples = [{ t: start, x: currentPoint.x, y: currentPoint.y }];
   trackerState.originPoint = { x: currentPoint.x, y: currentPoint.y };
   trackerState.selectedPoint = { x: currentPoint.x, y: currentPoint.y };
@@ -2305,6 +2811,27 @@ resetBtn.addEventListener("click", async () => {
   }
 });
 exportBtn.addEventListener("click", exportCsv);
+fitToggleInput.addEventListener("change", (event) => {
+  trackerState.showTheoreticalFit = Boolean(event.target.checked) && Boolean(trackerState.theoreticalFit);
+  rebuildResultsView();
+  redrawCurrentState();
+});
+document.addEventListener("click", (event) => {
+  const button = event.target.closest(".info-button");
+  if (button) {
+    const tooltip = button.nextElementSibling;
+    const isOpen = button.getAttribute("aria-expanded") === "true";
+    closeInfoTooltips();
+
+    if (!isOpen && tooltip?.classList.contains("info-tooltip")) {
+      button.setAttribute("aria-expanded", "true");
+      tooltip.hidden = false;
+    }
+    return;
+  }
+
+  closeInfoTooltips();
+});
 timelineRange.addEventListener("input", async () => {
   if (!video.src || trackerState.isTracking) {
     return;
@@ -2389,6 +2916,7 @@ scaleUnitInput.addEventListener("input", () => {
   trackerState.scale.unit = unit;
   if (trackerState.samples.length) {
     rebuildResultsView();
+    redrawCurrentState();
   }
 });
 scaleDistanceInput.addEventListener("input", () => {
@@ -2407,6 +2935,7 @@ scaleDistanceInput.addEventListener("input", () => {
     if (pixelDistance > 0) {
       trackerState.scale.pixelsPerUnit = pixelDistance / distance;
       rebuildResultsView();
+      redrawCurrentState();
       setStatusKey("statusScaleUpdated", {
         value: formatNumber(trackerState.scale.pixelsPerUnit, 3),
         unit: trackerState.scale.unit

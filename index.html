@@ -25,7 +25,7 @@
             <select id="languageSelect">
               <option value="auto">Auto</option>
               <option value="es">Español</option>
-              <option value="ca">Català (Catalunya)</option>
+              <option value="ca">Català</option>
               <option value="gl">Galego</option>
               <option value="eu">Euskara</option>
               <option value="en">English</option>
@@ -150,7 +150,7 @@
             <div id="selectionToast" class="selection-toast" hidden>Punto marcado</div>
           </div>
           <div class="player-bar">
-            <button id="playPauseBtn" class="player-bar__toggle" type="button" disabled aria-label="Reproducir">▶</button>
+            <button id="playPauseBtn" class="player-bar__toggle player-bar__toggle--play" type="button" disabled aria-label="Reproducir">▶</button>
             <div class="timeline-range-wrap">
               <div class="timeline-selection" aria-hidden="true"></div>
               <div class="timeline-boundary timeline-boundary--start" aria-hidden="true"></div>
@@ -178,13 +178,23 @@
           <div class="legend">
             <span id="legendTarget"><i class="dot dot--target"></i>Punto seguido</span>
             <span id="legendPath"><i class="dot dot--path"></i>Trayectoria</span>
+            <span id="legendFit" hidden><i class="dot dot--fit"></i>Ajuste teórico</span>
           </div>
         </div>
         <aside class="viewer-actions">
           <div class="actions actions--viewer">
-            <button id="manualModeBtn" type="button" disabled>Modo manual</button>
-            <button id="calibrateBtn" type="button" disabled>Calibrar escala</button>
-            <button id="trackBtn" type="button" disabled>Iniciar seguimiento</button>
+            <div id="manualModeControl" class="action-control">
+              <div id="manualModeHeading"></div>
+              <button id="manualModeBtn" type="button" disabled>Modo manual</button>
+            </div>
+            <div id="calibrateControl" class="action-control">
+              <div id="calibrateHeading"></div>
+              <button id="calibrateBtn" type="button" disabled>Calibrar escala</button>
+            </div>
+            <div id="trackControl" class="action-control">
+              <div id="trackHeading"></div>
+              <button id="trackBtn" type="button" disabled>Iniciar seguimiento</button>
+            </div>
           </div>
           <div id="status" class="status">Selecciona un vídeo para empezar.</div>
         </aside>
@@ -195,6 +205,13 @@
     <section class="panel charts">
       <div class="charts-header">
         <h2 id="chartsTitle">3. Gráficas</h2>
+      </div>
+      <div class="fit-toggle-wrap">
+        <label class="checkbox-field fit-toggle" for="fitToggle">
+          <input id="fitToggle" type="checkbox" disabled>
+          <span id="fitToggleLabel">Mostrar ajuste teórico</span>
+        </label>
+        <p id="fitToggleHint" class="fit-toggle__hint">Necesita al menos 3 puntos de seguimiento para calcular el ajuste.</p>
       </div>
       <div class="charts-grid">
         <div class="chart-card">
@@ -243,6 +260,16 @@
             <strong class="summary-card__value">-</strong>
           </div>
         </div>
+      </div>
+
+      <div id="fitPanel" class="fit-panel" hidden>
+        <div class="charts-header">
+          <div>
+            <h3 id="fitPanelTitle">Ajuste teórico</h3>
+            <p id="fitPanelLead" class="fit-panel__lead">Comparativa con un modelo sin rozamiento ajustado a los datos medidos.</p>
+          </div>
+        </div>
+        <div id="fitSummaryGrid" class="summary-grid summary-grid--fit"></div>
       </div>
 
       <div class="table-wrap">
