@@ -222,7 +222,7 @@ select {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 0.8rem 0.9rem;
+  padding: 0.58rem 0.82rem;
   background: var(--surface-strong);
   color: var(--ink);
   font: inherit;
@@ -756,6 +756,7 @@ button:disabled {
   box-shadow: var(--shadow);
   font-size: 0.9rem;
   line-height: 1.45;
+  font-weight: 400;
 }
 
 .summary-card__value {
