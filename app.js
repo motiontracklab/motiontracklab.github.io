@@ -19,6 +19,7 @@ const timelineEndLabel = document.getElementById("timelineEndLabel");
 const themeToggleBtn = document.getElementById("themeToggle");
 const themeToggleLabel = document.getElementById("themeToggleLabel");
 const languageSelect = document.getElementById("languageSelect");
+const sampleRateHint = document.getElementById("sampleRateHint");
 
 const sampleRateInput = document.getElementById("sampleRate");
 const templateSizeInput = document.getElementById("templateSize");
@@ -56,6 +57,7 @@ const THEME_STORAGE_KEY = "trayectoria-theme";
 const LANGUAGE_STORAGE_KEY = "trayectoria-language";
 const SUPPORTED_LANGUAGES = ["es", "ca", "gl", "eu", "en"];
 const FIT_COLOR = "#3a78b3";
+const DEFAULT_MAX_SAMPLE_RATE = 60;
 
 const translations = {
   es: {
@@ -78,6 +80,9 @@ const translations = {
     videoFieldHelp: "Carga el vídeo que quieres analizar. El objeto debe verse con buen contraste respecto al fondo y la cámara no debe moverse durante la grabación.",
     sampleRateLabel: "Muestras por segundo",
     sampleRateFieldHelp: "Indica cuántos puntos por segundo quieres calcular para analizar el movimiento.",
+    sampleRateHintPending: "Máximo recomendado según el vídeo: se calculará al cargarlo.",
+    sampleRateHintDetected: "Máximo recomendado según el vídeo: {value} muestras/s.",
+    sampleRateHintUnavailable: "Máximo recomendado según el vídeo: no se ha podido determinar.",
     templateSizeLabel: "Tamaño de referencia",
     templateSizeFieldHelp: "Define el tamaño del recorte alrededor del objeto que el programa intentará reconocer.",
     searchRadiusLabel: "Ventana de búsqueda",
@@ -178,8 +183,8 @@ const translations = {
     exportCsv: "Exportar CSV",
     footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Licencia <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Sugerencias y errores</a>.',
     canvasSelectVideo: "Carga un vídeo y haz clic sobre el objeto.",
-    canvasMoveAndMark: "Muévete al instante deseado y marca el objeto.",
-    canvasMoveAndClick: "Muévete al instante deseado y haz clic sobre el objeto.",
+    canvasMoveAndMark: "Haz clic sobre el objeto para marcarlo en el fotograma visible.",
+    canvasMoveAndClick: "Haz clic sobre el objeto para marcarlo en el fotograma visible.",
     canvasManualActive: "Modo manual activo: reproduce y haz clic sobre el objeto para guardar cada posición.",
     canvasCalibrationReady: "Marca dos puntos separados por una distancia conocida.",
     canvasScaleReady: "Escala calibrada. Ahora marca el objeto a seguir.",
@@ -189,7 +194,7 @@ const translations = {
     canvasTransformUpdated: "Transformación actualizada. Haz clic sobre el objeto o vuelve a calibrar si lo necesitas.",
     canvasAtStart: "Estás en el instante inicial. Marca aquí el objeto si quieres usar seguimiento automático.",
     canvasAtEnd: "Estás en el instante final. Comprueba aquí si el tramo termina donde quieres.",
-    canvasVideoReady: "Vídeo listo. Ya puedes ajustar orientación, calibrar o hacer clic sobre el objeto.",
+    canvasVideoReady: "Vídeo listo. El primer fotograma ya está visible: haz clic directamente sobre el objeto para marcarlo.",
     canvasManualFinished: "Modo manual finalizado. Puedes revisar, exportar o seguir ajustando el tramo.",
     canvasManualOff: "Modo manual desactivado. Ya puedes usar el seguimiento automático si quieres.",
     selectionNoPoint: "Todavía no hay punto seleccionado.",
@@ -226,7 +231,7 @@ const translations = {
     statusPlaybackReachedEnd: "Reproducción completada hasta el final del tramo.",
     statusPlaybackStopped: "Reproducción detenida.",
     statusPlaybackCompleted: "Reproducción completada.",
-    statusVideoLoaded: "Vídeo cargado. Muévete al instante que quieras y haz clic sobre el objeto para marcarlo.",
+    statusVideoLoaded: "Vídeo cargado. El primer fotograma ya está listo: haz clic directamente sobre el objeto para marcarlo.",
     statusVideoReadyError: "No se pudo preparar el vídeo.",
     statusResetDone: "Reinicio realizado.",
     statusStartFixed: "Inicio del análisis fijado en {time}.",
@@ -274,6 +279,9 @@ const translations = {
     videoFieldHelp: "Carrega el vídeo que vols analitzar. L'objecte s'ha de veure amb bon contrast respecte del fons i la càmera no s'ha de moure durant la gravació.",
     sampleRateLabel: "Mostres per segon",
     sampleRateFieldHelp: "Indica quants punts per segon vols calcular per analitzar el moviment.",
+    sampleRateHintPending: "Màxim recomanat segons el vídeo: es calcularà en carregar-lo.",
+    sampleRateHintDetected: "Màxim recomanat segons el vídeo: {value} mostres/s.",
+    sampleRateHintUnavailable: "Màxim recomanat segons el vídeo: no s'ha pogut determinar.",
     templateSizeLabel: "Mida de referència",
     templateSizeFieldHelp: "Defineix la mida del retall al voltant de l'objecte que el programa intentarà reconèixer.",
     searchRadiusLabel: "Finestra de cerca",
@@ -374,8 +382,8 @@ const translations = {
     exportCsv: "Exporta CSV",
     footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Llicència <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Suggeriments i errors</a>.',
     canvasSelectVideo: "Carrega un vídeo i fes clic sobre l'objecte.",
-    canvasMoveAndMark: "Mou-te fins a l'instant desitjat i marca l'objecte.",
-    canvasMoveAndClick: "Mou-te fins a l'instant desitjat i fes clic sobre l'objecte.",
+    canvasMoveAndMark: "Fes clic sobre l'objecte per marcar-lo al fotograma visible.",
+    canvasMoveAndClick: "Fes clic sobre l'objecte per marcar-lo al fotograma visible.",
     canvasManualActive: "Mode manual actiu: reprodueix i fes clic sobre l'objecte per desar cada posició.",
     canvasCalibrationReady: "Marca dos punts separats per una distància coneguda.",
     canvasScaleReady: "Escala calibrada. Ara marca l'objecte a seguir.",
@@ -385,7 +393,7 @@ const translations = {
     canvasTransformUpdated: "Transformació actualitzada. Fes clic sobre l'objecte o torna a calibrar si ho necessites.",
     canvasAtStart: "Ets a l'instant inicial. Marca aquí l'objecte si vols fer servir seguiment automàtic.",
     canvasAtEnd: "Ets a l'instant final. Comprova aquí si el tram acaba on vols.",
-    canvasVideoReady: "Vídeo llest. Ja pots ajustar l'orientació, calibrar o fer clic sobre l'objecte.",
+    canvasVideoReady: "Vídeo llest. El primer fotograma ja és visible: fes clic directament sobre l'objecte per marcar-lo.",
     canvasManualFinished: "Mode manual finalitzat. Pots revisar, exportar o continuar ajustant el tram.",
     canvasManualOff: "Mode manual desactivat. Ja pots fer servir el seguiment automàtic si vols.",
     selectionNoPoint: "Encara no hi ha cap punt seleccionat.",
@@ -422,7 +430,7 @@ const translations = {
     statusPlaybackReachedEnd: "Reproducció completada fins al final del tram.",
     statusPlaybackStopped: "Reproducció aturada.",
     statusPlaybackCompleted: "Reproducció completada.",
-    statusVideoLoaded: "Vídeo carregat. Mou-te fins a l'instant que vulguis i fes clic sobre l'objecte per marcar-lo.",
+    statusVideoLoaded: "Vídeo carregat. El primer fotograma ja és a punt: fes clic directament sobre l'objecte per marcar-lo.",
     statusVideoReadyError: "No s'ha pogut preparar el vídeo.",
     statusResetDone: "Reinici fet.",
     statusStartFixed: "Inici de l'anàlisi fixat a {time}.",
@@ -470,6 +478,9 @@ const translations = {
     videoFieldHelp: "Carga o vídeo que queres analizar. O obxecto debe verse con bo contraste respecto do fondo e a cámara non debe moverse durante a gravación.",
     sampleRateLabel: "Mostras por segundo",
     sampleRateFieldHelp: "Indica cantos puntos por segundo queres calcular para analizar o movemento.",
+    sampleRateHintPending: "Máximo recomendado segundo o vídeo: calcularase ao cargalo.",
+    sampleRateHintDetected: "Máximo recomendado segundo o vídeo: {value} mostras/s.",
+    sampleRateHintUnavailable: "Máximo recomendado segundo o vídeo: non se puido determinar.",
     templateSizeLabel: "Tamaño de referencia",
     templateSizeFieldHelp: "Define o tamaño do recorte arredor do obxecto que o programa intentará recoñecer.",
     searchRadiusLabel: "Xanela de busca",
@@ -570,8 +581,8 @@ const translations = {
     exportCsv: "Exportar CSV",
     footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Licenza <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Suxestións e erros</a>.',
     canvasSelectVideo: "Carga un vídeo e fai clic sobre o obxecto.",
-    canvasMoveAndMark: "Móvete ao instante desexado e marca o obxecto.",
-    canvasMoveAndClick: "Móvete ao instante desexado e fai clic sobre o obxecto.",
+    canvasMoveAndMark: "Fai clic sobre o obxecto para marcalo no fotograma visible.",
+    canvasMoveAndClick: "Fai clic sobre o obxecto para marcalo no fotograma visible.",
     canvasManualActive: "Modo manual activo: reproduce e fai clic sobre o obxecto para gardar cada posición.",
     canvasCalibrationReady: "Marca dous puntos separados por unha distancia coñecida.",
     canvasScaleReady: "Escala calibrada. Agora marca o obxecto que hai que seguir.",
@@ -581,7 +592,7 @@ const translations = {
     canvasTransformUpdated: "Transformación actualizada. Fai clic sobre o obxecto ou volve calibrar se o precisas.",
     canvasAtStart: "Estás no instante inicial. Marca aquí o obxecto se queres usar seguimento automático.",
     canvasAtEnd: "Estás no instante final. Comproba aquí se o tramo remata onde queres.",
-    canvasVideoReady: "Vídeo listo. Xa podes axustar orientación, calibrar ou facer clic sobre o obxecto.",
+    canvasVideoReady: "Vídeo listo. O primeiro fotograma xa está visible: fai clic directamente sobre o obxecto para marcalo.",
     canvasManualFinished: "Modo manual finalizado. Podes revisar, exportar ou seguir axustando o tramo.",
     canvasManualOff: "Modo manual desactivado. Xa podes usar o seguimento automático se queres.",
     selectionNoPoint: "Aínda non hai ningún punto seleccionado.",
@@ -618,7 +629,7 @@ const translations = {
     statusPlaybackReachedEnd: "Reprodución completada ata o final do tramo.",
     statusPlaybackStopped: "Reprodución detida.",
     statusPlaybackCompleted: "Reprodución completada.",
-    statusVideoLoaded: "Vídeo cargado. Móvete ao instante que queiras e fai clic sobre o obxecto para marcalo.",
+    statusVideoLoaded: "Vídeo cargado. O primeiro fotograma xa está listo: fai clic directamente sobre o obxecto para marcalo.",
     statusVideoReadyError: "Non se puido preparar o vídeo.",
     statusResetDone: "Reinicio realizado.",
     statusStartFixed: "Inicio da análise fixado en {time}.",
@@ -666,6 +677,9 @@ const translations = {
     videoFieldHelp: "Aztertu nahi duzun bideoa kargatu. Objektua atzeko planoarekiko kontraste onarekin ikusi behar da, eta kamerak ezin du mugitu grabazioan.",
     sampleRateLabel: "Laginak segundoko",
     sampleRateFieldHelp: "Mugimendua aztertzeko segundoko zenbat puntu kalkulatu nahi dituzun adierazten du.",
+    sampleRateHintPending: "Bideoaren araberako gehienezko gomendioa: kargatzean kalkulatuko da.",
+    sampleRateHintDetected: "Bideoaren araberako gehienezko gomendioa: {value} lagin/s.",
+    sampleRateHintUnavailable: "Bideoaren araberako gehienezko gomendioa: ezin izan da zehaztu.",
     templateSizeLabel: "Erreferentzia-tamaina",
     templateSizeFieldHelp: "Programak ezagutzen saiatuko den objektuaren inguruko mozketa-tamaina definitzen du.",
     searchRadiusLabel: "Bilaketa-leihoa",
@@ -766,8 +780,8 @@ const translations = {
     exportCsv: "CSV esportatu",
     footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a> lizentzia. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Iradokizunak eta erroreak</a>.',
     canvasSelectVideo: "Kargatu bideo bat eta egin klik objektuaren gainean.",
-    canvasMoveAndMark: "Mugitu nahi duzun unera eta markatu objektua.",
-    canvasMoveAndClick: "Mugitu nahi duzun unera eta egin klik objektuaren gainean.",
+    canvasMoveAndMark: "Egin klik objektuan fotograma ikusgaian markatzeko.",
+    canvasMoveAndClick: "Egin klik objektuan fotograma ikusgaian markatzeko.",
     canvasManualActive: "Eskuzko modua aktibo: erreproduzitu eta egin klik objektuan posizio bakoitza gordetzeko.",
     canvasCalibrationReady: "Markatu distantzia ezagun batez bereizitako bi puntu.",
     canvasScaleReady: "Eskala kalibratuta. Orain markatu jarraitu beharreko objektua.",
@@ -777,7 +791,7 @@ const translations = {
     canvasTransformUpdated: "Eraldaketa eguneratuta. Egin klik objektuan edo kalibratu berriro behar baduzu.",
     canvasAtStart: "Hasierako unean zaude. Markatu hemen objektua jarraipen automatikoa erabili nahi baduzu.",
     canvasAtEnd: "Amaierako unean zaude. Egiaztatu hemen tartea nahi duzun lekuan amaitzen den.",
-    canvasVideoReady: "Bideoa prest. Orain orientazioa doitu, kalibratu edo objektuan klik egin dezakezu.",
+    canvasVideoReady: "Bideoa prest dago. Lehen fotograma ikusgai dago jada: egin klik zuzenean objektuan markatzeko.",
     canvasManualFinished: "Eskuzko modua amaituta. Berrikusi, esportatu edo tartea doitzen jarrai dezakezu.",
     canvasManualOff: "Eskuzko modua desaktibatuta. Orain jarraipen automatikoa erabil dezakezu nahi baduzu.",
     selectionNoPoint: "Oraindik ez dago punturik hautatuta.",
@@ -814,7 +828,7 @@ const translations = {
     statusPlaybackReachedEnd: "Erreprodukzioa tartearen amaierara arte osatu da.",
     statusPlaybackStopped: "Erreprodukzioa geldituta.",
     statusPlaybackCompleted: "Erreprodukzioa amaituta.",
-    statusVideoLoaded: "Bideoa kargatuta. Mugitu nahi duzun unera eta egin klik objektuan markatzeko.",
+    statusVideoLoaded: "Bideoa kargatuta. Lehen fotograma prest dago jada: egin klik zuzenean objektuan markatzeko.",
     statusVideoReadyError: "Ezin izan da bideoa prestatu.",
     statusResetDone: "Berrezarpena eginda.",
     statusStartFixed: "Analisiaren hasiera {time} unean ezarri da.",
@@ -862,6 +876,9 @@ const translations = {
     videoFieldHelp: "Load the video you want to analyze. The object should stand out clearly from the background and the camera should stay still while recording.",
     sampleRateLabel: "Samples per second",
     sampleRateFieldHelp: "Indicates how many points per second you want to calculate to analyze the motion.",
+    sampleRateHintPending: "Recommended maximum from the video: it will be calculated when the video loads.",
+    sampleRateHintDetected: "Recommended maximum from the video: {value} samples/s.",
+    sampleRateHintUnavailable: "Recommended maximum from the video: it could not be determined.",
     templateSizeLabel: "Reference size",
     templateSizeFieldHelp: "Defines the size of the crop around the object that the program will try to recognize.",
     searchRadiusLabel: "Search window",
@@ -962,8 +979,8 @@ const translations = {
     exportCsv: "Export CSV",
     footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Licensed under <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Suggestions and issues</a>.',
     canvasSelectVideo: "Load a video and click on the object.",
-    canvasMoveAndMark: "Move to the desired instant and mark the object.",
-    canvasMoveAndClick: "Move to the desired instant and click on the object.",
+    canvasMoveAndMark: "Click on the object to mark it on the visible frame.",
+    canvasMoveAndClick: "Click on the object to mark it on the visible frame.",
     canvasManualActive: "Manual mode active: play and click on the object to save each position.",
     canvasCalibrationReady: "Mark two points separated by a known distance.",
     canvasScaleReady: "Scale calibrated. Now mark the object to track.",
@@ -973,7 +990,7 @@ const translations = {
     canvasTransformUpdated: "Transform updated. Click on the object or calibrate again if needed.",
     canvasAtStart: "You are at the start instant. Mark the object here if you want automatic tracking.",
     canvasAtEnd: "You are at the final instant. Check here whether the segment ends where you want.",
-    canvasVideoReady: "Video ready. You can now adjust orientation, calibrate, or click on the object.",
+    canvasVideoReady: "Video ready. The first frame is already visible: click directly on the object to mark it.",
     canvasManualFinished: "Manual mode finished. You can review, export, or keep adjusting the segment.",
     canvasManualOff: "Manual mode disabled. You can now use automatic tracking if you want.",
     selectionNoPoint: "No point has been selected yet.",
@@ -1010,7 +1027,7 @@ const translations = {
     statusPlaybackReachedEnd: "Playback completed up to the end of the selected segment.",
     statusPlaybackStopped: "Playback stopped.",
     statusPlaybackCompleted: "Playback completed.",
-    statusVideoLoaded: "Video loaded. Move to the instant you want and click on the object to mark it.",
+    statusVideoLoaded: "Video loaded. The first frame is already ready: click directly on the object to mark it.",
     statusVideoReadyError: "The video could not be prepared.",
     statusResetDone: "Reset completed.",
     statusStartFixed: "Analysis start set to {time}.",
@@ -1061,6 +1078,7 @@ let activeTimelineBoundary = null;
 let pendingTimelineSeek = null;
 let timelineSeekInFlight = false;
 let hideTimelineMarker = false;
+let detectedVideoFrameRate = null;
 
 function formatTime(value) {
   return `${formatNumber(value, 2)} s`;
@@ -1233,6 +1251,7 @@ function renderStaticTexts() {
   setText("controlsTitle", "controlsTitle");
   setHeadingWithInfo("videoLabel", "videoLabel", "videoFieldHelp");
   setHeadingWithInfo("sampleRateLabel", "sampleRateLabel", "sampleRateFieldHelp");
+  updateSampleRateRecommendation();
   setHeadingWithInfo("templateSizeLabel", "templateSizeLabel", "templateSizeFieldHelp");
   setHeadingWithInfo("searchRadiusLabel", "searchRadiusLabel", "searchRadiusFieldHelp");
   setHeadingWithInfo("startTimeLabel", "startTimeLabel", "startTimeFieldHelp");
@@ -1286,6 +1305,29 @@ function renderStaticTexts() {
   setText("resultsTitle", "resultsTitle");
   setText("exportBtn", "exportCsv");
   setHtml("footerText", "footerText");
+}
+
+function formatFrameRateValue(value) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return null;
+  }
+
+  const rounded = Math.round(value);
+  return Math.abs(value - rounded) < 0.15 ? String(rounded) : formatNumber(value, 1);
+}
+
+function updateSampleRateRecommendation() {
+  const detected = formatFrameRateValue(detectedVideoFrameRate);
+  const maxSampleRate = detected ? Math.max(1, Math.round(detectedVideoFrameRate)) : DEFAULT_MAX_SAMPLE_RATE;
+  sampleRateInput.max = String(maxSampleRate);
+
+  if (Number.parseFloat(sampleRateInput.value) > maxSampleRate) {
+    sampleRateInput.value = String(maxSampleRate);
+  }
+
+  sampleRateHint.textContent = detected
+    ? t("sampleRateHintDetected", { value: detected })
+    : (video.src ? t("sampleRateHintUnavailable") : t("sampleRateHintPending"));
 }
 
 function applyLanguage(preference, persist = true) {
@@ -1457,6 +1499,32 @@ function drawTransformedVideo(context) {
     trackerState.sourceHeight
   );
   context.restore();
+}
+
+function waitForMediaReady(media) {
+  return new Promise((resolve, reject) => {
+    if (media.readyState >= 2 && media.videoWidth > 0 && media.videoHeight > 0) {
+      resolve();
+      return;
+    }
+
+    const onLoadedData = () => {
+      cleanup();
+      resolve();
+    };
+    const onError = () => {
+      cleanup();
+      reject(new Error(t("statusLoadVideoError")));
+    };
+    const cleanup = () => {
+      media.removeEventListener("loadeddata", onLoadedData);
+      media.removeEventListener("error", onError);
+    };
+
+    media.addEventListener("loadeddata", onLoadedData, { once: true });
+    media.addEventListener("error", onError, { once: true });
+    media.load();
+  });
 }
 
 function toPhysicalX(pixelX) {
@@ -1867,6 +1935,7 @@ function clearCanvasMessage(message) {
 
 function resetState(keepVideo = true) {
   trackerState = createInitialState();
+  detectedVideoFrameRate = null;
   trackBtn.disabled = true;
   manualModeBtn.disabled = !keepVideo;
   manualModeBtn.classList.remove("button--active");
@@ -1881,6 +1950,7 @@ function resetState(keepVideo = true) {
   setSelectionStatusKey("selectionNoPoint");
   rebuildResultsView();
   syncTimelineControls();
+  updateSampleRateRecommendation();
   clearCanvasMessage(keepVideo ? "canvasMoveAndMark" : "statusSelectVideo");
 }
 
@@ -1920,9 +1990,11 @@ function drawFrame(point = (hideTimelineMarker ? null : getDisplayedPointAtTime(
 
   if (trackerState.showTheoreticalFit && trackerState.theoreticalFit?.densePredictions.length) {
     ctx.save();
-    ctx.strokeStyle = FIT_COLOR;
-    ctx.lineWidth = 2.5;
-    ctx.setLineDash([10, 7]);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "rgba(17, 24, 32, 0.72)";
+    ctx.lineWidth = 6.5;
+    ctx.setLineDash([12, 8]);
     ctx.beginPath();
     trackerState.theoreticalFit.densePredictions.forEach((sample, index) => {
       const x = fromPhysicalX(sample.x);
@@ -1934,13 +2006,18 @@ function drawFrame(point = (hideTimelineMarker ? null : getDisplayedPointAtTime(
       }
     });
     ctx.stroke();
+    ctx.strokeStyle = "#63b6ff";
+    ctx.lineWidth = 3.8;
+    ctx.stroke();
     ctx.restore();
   }
 
   if (trackerState.samples.length > 1) {
     ctx.save();
-    ctx.strokeStyle = "#d1793f";
-    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "rgba(17, 24, 32, 0.78)";
+    ctx.lineWidth = 8;
     ctx.beginPath();
     trackerState.samples.forEach((sample, index) => {
       if (index === 0) {
@@ -1950,10 +2027,16 @@ function drawFrame(point = (hideTimelineMarker ? null : getDisplayedPointAtTime(
       }
     });
     ctx.stroke();
+    ctx.strokeStyle = "#ffa64d";
+    ctx.lineWidth = 4.8;
+    ctx.stroke();
     const lastSample = trackerState.samples[trackerState.samples.length - 1];
-    ctx.fillStyle = "#d1793f";
+    ctx.fillStyle = "rgba(17, 24, 32, 0.78)";
     ctx.font = "bold 18px sans-serif";
-    ctx.fillText(plainTextFromHtml(t("legendPath")), lastSample.x + 12, lastSample.y - 12);
+    const pathLabel = plainTextFromHtml(t("legendPath"));
+    ctx.fillText(pathLabel, lastSample.x + 13, lastSample.y - 11);
+    ctx.fillStyle = "#ffb36b";
+    ctx.fillText(pathLabel, lastSample.x + 12, lastSample.y - 12);
     ctx.restore();
   }
 
@@ -2163,6 +2246,93 @@ function seekVideo(time) {
     }
 
     video.currentTime = targetTime;
+  });
+}
+
+async function estimateVideoFrameRate(source) {
+  if (!source || typeof HTMLVideoElement === "undefined" || !("requestVideoFrameCallback" in HTMLVideoElement.prototype)) {
+    return null;
+  }
+
+  const probe = document.createElement("video");
+  probe.preload = "metadata";
+  probe.muted = true;
+  probe.playsInline = true;
+  probe.src = source;
+
+  try {
+    await waitForMediaReady(probe);
+  } catch {
+    probe.removeAttribute("src");
+    probe.load();
+    return null;
+  }
+
+  return new Promise((resolve) => {
+    const frameDeltas = [];
+    let previousMediaTime = null;
+    let callbackId = null;
+    let timeoutId = null;
+    let settled = false;
+
+    const finish = (value) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      if (callbackId !== null && typeof probe.cancelVideoFrameCallback === "function") {
+        probe.cancelVideoFrameCallback(callbackId);
+      }
+
+      probe.pause();
+      probe.removeAttribute("src");
+      probe.load();
+      resolve(value);
+    };
+
+    const onFrame = (_now, metadata) => {
+      if (settled) {
+        return;
+      }
+
+      if (previousMediaTime !== null) {
+        const delta = metadata.mediaTime - previousMediaTime;
+        if (delta > 0 && delta < 1) {
+          frameDeltas.push(delta);
+        }
+      }
+      previousMediaTime = metadata.mediaTime;
+
+      if (frameDeltas.length >= 8) {
+        const sorted = [...frameDeltas].sort((a, b) => a - b);
+        const median = sorted[Math.floor(sorted.length / 2)];
+        const fps = median > 0 ? 1 / median : null;
+        finish(Number.isFinite(fps) && fps >= 1 && fps <= 240 ? fps : null);
+        return;
+      }
+
+      callbackId = probe.requestVideoFrameCallback(onFrame);
+    };
+
+    timeoutId = setTimeout(() => {
+      if (!frameDeltas.length) {
+        finish(null);
+        return;
+      }
+
+      const averageDelta = frameDeltas.reduce((sum, delta) => sum + delta, 0) / frameDeltas.length;
+      const fps = averageDelta > 0 ? 1 / averageDelta : null;
+      finish(Number.isFinite(fps) && fps >= 1 && fps <= 240 ? fps : null);
+    }, 1500);
+
+    callbackId = probe.requestVideoFrameCallback(onFrame);
+    probe.play().catch(() => {
+      finish(null);
+    });
   });
 }
 
@@ -2986,6 +3156,21 @@ videoInput.addEventListener("change", async (event) => {
     setCanvasHintKey("canvasVideoReady");
     setSelectionStatusKey("selectionVideoLoaded");
     setStatusKey("statusVideoLoaded");
+
+    const currentSource = video.currentSrc || video.src;
+    estimateVideoFrameRate(currentSource).then((estimatedRate) => {
+      if ((video.currentSrc || video.src) !== currentSource) {
+        return;
+      }
+      detectedVideoFrameRate = estimatedRate;
+      updateSampleRateRecommendation();
+    }).catch(() => {
+      if ((video.currentSrc || video.src) !== currentSource) {
+        return;
+      }
+      detectedVideoFrameRate = null;
+      updateSampleRateRecommendation();
+    });
   } catch (error) {
     setStatus(error.message || t("statusVideoReadyError"), true);
   }

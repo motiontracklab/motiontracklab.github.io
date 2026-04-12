@@ -60,6 +60,7 @@
           <input id="sampleRate" type="number" min="1" max="60" step="1" value="12">
           <span>fps</span>
         </div>
+        <p id="sampleRateHint" class="field-hint">Máximo recomendado según el vídeo: se calculará al cargarlo.</p>
       </div>
 
       <div class="field">
@@ -185,6 +186,13 @@
             <span id="legendPath"><i class="dot dot--path"></i>Trayectoria</span>
             <span id="legendFit" hidden><i class="dot dot--fit"></i>Ajuste teórico</span>
           </div>
+          <div class="fit-toggle-wrap fit-toggle-wrap--viewer">
+            <label class="checkbox-field fit-toggle" for="fitToggle">
+              <input id="fitToggle" type="checkbox" disabled>
+              <span id="fitToggleLabel">Mostrar ajuste teórico</span>
+            </label>
+            <p id="fitToggleHint" class="fit-toggle__hint">Necesita al menos 3 puntos de seguimiento para calcular el ajuste.</p>
+          </div>
         </div>
         <aside class="viewer-actions">
           <div class="actions actions--viewer">
@@ -210,13 +218,6 @@
     <section class="panel charts">
       <div class="charts-header">
         <h2 id="chartsTitle">3. Gráficas</h2>
-      </div>
-      <div class="fit-toggle-wrap">
-        <label class="checkbox-field fit-toggle" for="fitToggle">
-          <input id="fitToggle" type="checkbox" disabled>
-          <span id="fitToggleLabel">Mostrar ajuste teórico</span>
-        </label>
-        <p id="fitToggleHint" class="fit-toggle__hint">Necesita al menos 3 puntos de seguimiento para calcular el ajuste.</p>
       </div>
       <div class="charts-grid">
         <div class="chart-card">
