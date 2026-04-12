@@ -76,8 +76,8 @@ const translations = {
     controlsTitle: "1. Configuración",
     videoLabel: "Vídeo",
     videoFieldHelp: "Carga el vídeo que quieres analizar. El objeto debe verse con buen contraste respecto al fondo y la cámara no debe moverse durante la grabación.",
-    sampleRateLabel: "Frecuencia de muestreo",
-    sampleRateFieldHelp: "Indica cuántas imágenes por segundo se usan para analizar el movimiento.",
+    sampleRateLabel: "Muestras por segundo",
+    sampleRateFieldHelp: "Indica cuántos puntos por segundo quieres calcular para analizar el movimiento.",
     templateSizeLabel: "Tamaño de referencia",
     templateSizeFieldHelp: "Define el tamaño del recorte alrededor del objeto que el programa intentará reconocer.",
     searchRadiusLabel: "Ventana de búsqueda",
@@ -272,8 +272,8 @@ const translations = {
     controlsTitle: "1. Configuració",
     videoLabel: "Vídeo",
     videoFieldHelp: "Carrega el vídeo que vols analitzar. L'objecte s'ha de veure amb bon contrast respecte del fons i la càmera no s'ha de moure durant la gravació.",
-    sampleRateLabel: "Freqüència de mostreig",
-    sampleRateFieldHelp: "Indica quantes imatges per segon s'usen per analitzar el moviment.",
+    sampleRateLabel: "Mostres per segon",
+    sampleRateFieldHelp: "Indica quants punts per segon vols calcular per analitzar el moviment.",
     templateSizeLabel: "Mida de referència",
     templateSizeFieldHelp: "Defineix la mida del retall al voltant de l'objecte que el programa intentarà reconèixer.",
     searchRadiusLabel: "Finestra de cerca",
@@ -468,8 +468,8 @@ const translations = {
     controlsTitle: "1. Configuración",
     videoLabel: "Vídeo",
     videoFieldHelp: "Carga o vídeo que queres analizar. O obxecto debe verse con bo contraste respecto do fondo e a cámara non debe moverse durante a gravación.",
-    sampleRateLabel: "Frecuencia de mostraxe",
-    sampleRateFieldHelp: "Indica cantas imaxes por segundo se usan para analizar o movemento.",
+    sampleRateLabel: "Mostras por segundo",
+    sampleRateFieldHelp: "Indica cantos puntos por segundo queres calcular para analizar o movemento.",
     templateSizeLabel: "Tamaño de referencia",
     templateSizeFieldHelp: "Define o tamaño do recorte arredor do obxecto que o programa intentará recoñecer.",
     searchRadiusLabel: "Xanela de busca",
@@ -664,8 +664,8 @@ const translations = {
     controlsTitle: "1. Konfigurazioa",
     videoLabel: "Bideoa",
     videoFieldHelp: "Aztertu nahi duzun bideoa kargatu. Objektua atzeko planoarekiko kontraste onarekin ikusi behar da, eta kamerak ezin du mugitu grabazioan.",
-    sampleRateLabel: "Laginketa-maiztasuna",
-    sampleRateFieldHelp: "Mugimendua aztertzeko segundo bakoitzeko zenbat irudi erabiltzen diren adierazten du.",
+    sampleRateLabel: "Laginak segundoko",
+    sampleRateFieldHelp: "Mugimendua aztertzeko segundoko zenbat puntu kalkulatu nahi dituzun adierazten du.",
     templateSizeLabel: "Erreferentzia-tamaina",
     templateSizeFieldHelp: "Programak ezagutzen saiatuko den objektuaren inguruko mozketa-tamaina definitzen du.",
     searchRadiusLabel: "Bilaketa-leihoa",
@@ -860,8 +860,8 @@ const translations = {
     controlsTitle: "1. Setup",
     videoLabel: "Video",
     videoFieldHelp: "Load the video you want to analyze. The object should stand out clearly from the background and the camera should stay still while recording.",
-    sampleRateLabel: "Sampling rate",
-    sampleRateFieldHelp: "Indicates how many frames per second are used to analyze the motion.",
+    sampleRateLabel: "Samples per second",
+    sampleRateFieldHelp: "Indicates how many points per second you want to calculate to analyze the motion.",
     templateSizeLabel: "Reference size",
     templateSizeFieldHelp: "Defines the size of the crop around the object that the program will try to recognize.",
     searchRadiusLabel: "Search window",
@@ -1884,6 +1884,32 @@ function resetState(keepVideo = true) {
   clearCanvasMessage(keepVideo ? "canvasMoveAndMark" : "statusSelectVideo");
 }
 
+function drawReferenceWindow(point) {
+  if (!point || trackerState.isCalibrating || trackerState.manualMode || trackerState.isTracking) {
+    return;
+  }
+
+  const patchSize = evenToOdd(templateSizeInput.value);
+  const radius = patchSize / 2;
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(109, 201, 200, 0.98)";
+  ctx.fillStyle = "rgba(109, 201, 200, 0.2)";
+  ctx.lineWidth = 2.5;
+  ctx.setLineDash([8, 5]);
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle = "rgba(17, 24, 32, 0.55)";
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, radius + 1.5, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
 function drawFrame(point = (hideTimelineMarker ? null : getDisplayedPointAtTime(video.currentTime || 0))) {
   if (!trackerState.videoWidth || !trackerState.videoHeight) {
     clearCanvasMessage("statusSelectVideo");
@@ -1958,6 +1984,7 @@ function drawFrame(point = (hideTimelineMarker ? null : getDisplayedPointAtTime(
   }
 
   if (point) {
+    drawReferenceWindow(point);
     ctx.save();
     ctx.fillStyle = "rgba(214, 50, 50, 0.28)";
     ctx.strokeStyle = "#d63232";
@@ -2745,6 +2772,7 @@ async function startTracking() {
   let currentPoint = startPoint;
   let previousPatch = trackerState.referencePatch;
   let velocity = { x: 0, y: 0 };
+  let lastUiUpdate = 0;
 
   stopPreview();
   trackerState.isTracking = true;
@@ -2809,13 +2837,19 @@ async function startTracking() {
       currentPoint = match.point;
       previousPatch = blendPatches(previousPatch, match.patch);
       trackerState.samples.push({ t: time, x: currentPoint.x, y: currentPoint.y });
-      drawFrame(currentPoint);
-      setStatusKey("statusProcessingSample", { index: i + 1, count: frameCount });
+      const shouldRefreshUi = i === frameCount - 1 || i === 0 || i - lastUiUpdate >= 3;
+      if (shouldRefreshUi) {
+        drawFrame(currentPoint);
+        syncTimelineControls();
+        setStatusKey("statusProcessingSample", { index: i + 1, count: frameCount });
+        lastUiUpdate = i;
+      }
     }
 
     trackerState.selectedPoint = currentPoint;
     trackerState.lastPatch = previousPatch;
     rebuildResultsView();
+    drawFrame(currentPoint);
     calibrateBtn.disabled = false;
     setStartBtn.disabled = false;
     setEndBtn.disabled = false;
@@ -3188,6 +3222,19 @@ scaleDistanceInput.addEventListener("input", () => {
       });
     }
   }
+});
+templateSizeInput.addEventListener("input", () => {
+  if (trackerState.selectedPoint && !trackerState.samples.length && !trackerState.manualMode && !trackerState.isTracking) {
+    const patchSize = evenToOdd(templateSizeInput.value);
+    const frame = getGrayFrame();
+    const patch = extractPatch(frame, trackerState.selectedPoint.x, trackerState.selectedPoint.y, patchSize);
+
+    if (patch) {
+      trackerState.referencePatch = patch;
+    }
+  }
+
+  redrawCurrentState();
 });
 startTimeInput.addEventListener("input", syncTimelineControls);
 endTimeInput.addEventListener("input", syncTimelineControls);
