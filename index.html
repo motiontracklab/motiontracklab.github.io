@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MotionTrackLab</title>
   <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -14,10 +15,14 @@
       <div class="hero__topbar">
         <div>
           <p id="heroEyebrow" class="eyebrow">Cinemática para ESO</p>
-          <h1 id="heroTitle">MotionTrackLab</h1>
+          <h1 class="hero-brand">
+            <img class="hero-brand__icon" src="favicon.svg" alt="" aria-hidden="true">
+            <span id="heroTitle">MotionTrackLab</span>
+          </h1>
           <p id="heroLead" class="lead">
             Carga un vídeo, marca la pelota o el objeto y obtén las gráficas de posición horizontal y vertical en función del tiempo.
           </p>
+          <a id="usageLink" class="hero-link" href="#usageHelp">Instrucciones de uso</a>
         </div>
         <div class="hero__tools">
           <label class="language-picker" for="languageSelect">
@@ -122,7 +127,7 @@
         <input id="scaleUnit" type="text" value="m" maxlength="10" placeholder="m">
       </label>
 
-      <div class="help">
+      <div id="usageHelp" class="help">
         <h3 id="helpTitle">Uso</h3>
         <ol>
           <li id="helpStep1">Carga un vídeo grabado con el móvil o descargado.</li>

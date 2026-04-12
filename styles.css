@@ -93,10 +93,35 @@ h1 {
   max-width: 12ch;
 }
 
+.hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  max-width: none;
+}
+
+.hero-brand__icon {
+  width: clamp(2.2rem, 4vw, 3.2rem);
+  height: clamp(2.2rem, 4vw, 3.2rem);
+  flex: 0 0 auto;
+}
+
 .lead {
   max-width: 65ch;
   font-size: 1.08rem;
   color: var(--muted);
+}
+
+.hero-link {
+  display: inline-flex;
+  margin-top: 0.3rem;
+  color: var(--accent-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.hero-link:hover {
+  text-decoration: underline;
 }
 
 .hero__tools {
@@ -185,7 +210,8 @@ h1 {
   margin-bottom: 1rem;
 }
 
-.field span:first-child {
+.field > span:first-child,
+.field > .title-with-info:first-child {
   font-weight: 700;
 }
 
@@ -217,6 +243,10 @@ select {
 }
 
 .checkbox-field span {
+  font-weight: 600;
+}
+
+.checkbox-field > .title-with-info {
   font-weight: 600;
 }
 
@@ -794,6 +824,11 @@ tbody tr:nth-child(even) {
   margin: 0 auto;
   padding: 0 1.25rem 2rem;
   color: var(--muted);
+  text-align: center;
+}
+
+.footer a {
+  color: var(--accent-strong);
 }
 
 @media (max-width: 900px) {

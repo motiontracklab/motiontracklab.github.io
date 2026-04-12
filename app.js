@@ -69,22 +69,34 @@ const translations = {
     heroEyebrow: "Cinemática para ESO",
     heroTitle: "MotionTrackLab",
     heroLead: "Carga un vídeo, marca la pelota o el objeto y obtén las gráficas de posición horizontal y vertical en función del tiempo.",
+    usageLink: "Instrucciones de uso",
     controlsTitle: "1. Configuración",
     videoLabel: "Vídeo",
+    videoFieldHelp: "Carga el video que quieres analizar. El objeto debe verse con buen contraste respecto al fondo y la camara no debe moverse durante la grabacion.",
     sampleRateLabel: "Frecuencia de muestreo",
+    sampleRateFieldHelp: "Indica cuantas imagenes por segundo se usan para analizar el movimiento.",
     templateSizeLabel: "Tamaño de referencia",
+    templateSizeFieldHelp: "Define el tamano del recorte alrededor del objeto que el programa intentara reconocer.",
     searchRadiusLabel: "Ventana de búsqueda",
+    searchRadiusFieldHelp: "Marca hasta donde buscara el objeto en el siguiente fotograma.",
     startTimeLabel: "Inicio del análisis",
+    startTimeFieldHelp: "Fija el instante desde el que quieres empezar a medir.",
     endTimeLabel: "Fin del análisis",
+    endTimeFieldHelp: "Fija el instante en el que terminara el seguimiento.",
     orientationLabel: "Orientación del vídeo",
+    orientationFieldHelp: "Ajusta como se muestra el video si fue grabado girado.",
     orientationOriginal: "Original",
     orientationHorizontal: "Horizontal automática",
     orientationVerticalCw: "Vertical girando a la derecha",
     orientationVerticalCcw: "Vertical girando a la izquierda",
     flipHorizontalLabel: "Flip horizontal para que el movimiento vaya de izquierda a derecha",
+    flipHorizontalFieldHelp: "Invierte la imagen en horizontal para que el avance quede hacia la derecha.",
     flipVerticalLabel: "Flip vertical",
+    flipVerticalFieldHelp: "Invierte la imagen arriba-abajo si el video esta al reves.",
     scaleDistanceLabel: "Distancia real de referencia",
+    scaleDistanceFieldHelp: "Es la distancia real entre los dos puntos que usaras para calibrar la escala.",
     scaleUnitTextLabel: "Unidad espacial",
+    scaleUnitTextFieldHelp: "Escribe la unidad que quieres usar, por ejemplo m, cm o px si no calibras.",
     helpTitle: "Uso",
     helpStep1: "Carga un vídeo grabado con el móvil o descargado.",
     helpStep2: "Ajusta el instante inicial, final, la velocidad y la orientación si lo necesitas.",
@@ -93,7 +105,7 @@ const translations = {
     helpStep5: "Opcionalmente, pulsa <strong>Calibrar escala</strong> y marca dos puntos separados una distancia conocida.",
     helpStep6: "Para seguimiento automático, haz clic sobre la masa o la pelota y pulsa <strong>Iniciar seguimiento</strong>.",
     helpStep7: "Si el automático falla, activa <strong>Modo manual</strong>, reproduce y ve haciendo clic sobre el objeto para dibujar la trayectoria.",
-    helpStep8: "Analiza las gráficas o exporta los datos.",
+    helpStep8: "Analiza las gráficas, activa si quieres la opcion de mostrar el ajuste teorico y exporta los datos. Las coordenadas se expresan respecto al primer punto del seguimiento.",
     viewerTitle: "2. Selección y seguimiento",
     selectionStatusLabel: "Estado:",
     playerPlayAria: "Reproducir",
@@ -159,7 +171,7 @@ const translations = {
     summaryMaxSpeedHelp: "Es la rapidez mas alta alcanzada en algun momento del seguimiento.",
     resultsTitle: "Datos obtenidos",
     exportCsv: "Exportar CSV",
-    footerText: "Herramienta estática preparada para GitHub Pages. Las coordenadas se expresan respecto al primer punto del seguimiento.",
+    footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Licencia <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Sugerencias y errores</a>.',
     canvasSelectVideo: "Carga un vídeo y haz clic sobre el objeto.",
     canvasMoveAndMark: "Muévete al instante deseado y marca el objeto.",
     canvasMoveAndClick: "Muévete al instante deseado y haz clic sobre el objeto.",
@@ -251,22 +263,34 @@ const translations = {
     heroEyebrow: "Cinemàtica per a l'ESO",
     heroTitle: "MotionTrackLab",
     heroLead: "Carrega un vídeo, marca la pilota o l'objecte i obtén les gràfiques de posició horitzontal i vertical en funció del temps.",
+    usageLink: "Instruccions d'ús",
     controlsTitle: "1. Configuració",
     videoLabel: "Vídeo",
+    videoFieldHelp: "Carrega el video que vols analitzar. L'objecte s'ha de veure amb bon contrast respecte del fons i la camera no s'ha de moure durant la gravacio.",
     sampleRateLabel: "Freqüència de mostreig",
+    sampleRateFieldHelp: "Indica quantes imatges per segon s'usen per analitzar el moviment.",
     templateSizeLabel: "Mida de referència",
+    templateSizeFieldHelp: "Defineix la mida del retall al voltant de l'objecte que el programa intentara reconeixer.",
     searchRadiusLabel: "Finestra de cerca",
+    searchRadiusFieldHelp: "Marca fins on buscara l'objecte al fotograma seguent.",
     startTimeLabel: "Inici de l'anàlisi",
+    startTimeFieldHelp: "Fixa l'instant des del qual vols comencar a mesurar.",
     endTimeLabel: "Final de l'anàlisi",
+    endTimeFieldHelp: "Fixa l'instant en que acabara el seguiment.",
     orientationLabel: "Orientació del vídeo",
+    orientationFieldHelp: "Ajusta com es mostra el video si es va gravar girat.",
     orientationOriginal: "Original",
     orientationHorizontal: "Horitzontal automàtica",
     orientationVerticalCw: "Vertical girant cap a la dreta",
     orientationVerticalCcw: "Vertical girant cap a l'esquerra",
     flipHorizontalLabel: "Flip horitzontal perquè el moviment vagi d'esquerra a dreta",
+    flipHorizontalFieldHelp: "Inverteix la imatge en horitzontal perque l'avanc quedi cap a la dreta.",
     flipVerticalLabel: "Flip vertical",
+    flipVerticalFieldHelp: "Inverteix la imatge de dalt a baix si el video esta capgirat.",
     scaleDistanceLabel: "Distància real de referència",
+    scaleDistanceFieldHelp: "Es la distancia real entre els dos punts que faras servir per calibrar l'escala.",
     scaleUnitTextLabel: "Unitat espacial",
+    scaleUnitTextFieldHelp: "Escriu la unitat que vols usar, per exemple m, cm o px si no calibres.",
     helpTitle: "Ús",
     helpStep1: "Carrega un vídeo gravat amb el mòbil o descarregat.",
     helpStep2: "Ajusta l'instant inicial, el final, la velocitat i l'orientació si ho necessites.",
@@ -275,7 +299,7 @@ const translations = {
     helpStep5: "Opcionalment, prem <strong>Calibrar escala</strong> i marca dos punts separats per una distància coneguda.",
     helpStep6: "Per al seguiment automàtic, fes clic sobre la massa o la pilota i prem <strong>Iniciar seguiment</strong>.",
     helpStep7: "Si l'automàtic falla, activa <strong>Mode manual</strong>, reprodueix i ves fent clic sobre l'objecte per dibuixar la trajectòria.",
-    helpStep8: "Analitza les gràfiques o exporta les dades.",
+    helpStep8: "Analitza les gràfiques, activa si vols l'opcio de mostrar l'ajust teoric i exporta les dades. Les coordenades s'expressen respecte del primer punt del seguiment.",
     viewerTitle: "2. Selecció i seguiment",
     selectionStatusLabel: "Estat:",
     playerPlayAria: "Reprodueix",
@@ -341,7 +365,7 @@ const translations = {
     summaryMaxSpeedHelp: "Es la rapidesa mes alta assolida en algun moment del seguiment.",
     resultsTitle: "Dades obtingudes",
     exportCsv: "Exporta CSV",
-    footerText: "Eina estàtica preparada per a GitHub Pages. Les coordenades s'expressen respecte del primer punt del seguiment.",
+    footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Llicència <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Suggeriments i errors</a>.',
     canvasSelectVideo: "Carrega un vídeo i fes clic sobre l'objecte.",
     canvasMoveAndMark: "Mou-te fins a l'instant desitjat i marca l'objecte.",
     canvasMoveAndClick: "Mou-te fins a l'instant desitjat i fes clic sobre l'objecte.",
@@ -433,22 +457,34 @@ const translations = {
     heroEyebrow: "Cinemática para a ESO",
     heroTitle: "MotionTrackLab",
     heroLead: "Carga un vídeo, marca a pelota ou o obxecto e obtén as gráficas de posición horizontal e vertical en función do tempo.",
+    usageLink: "Instrucións de uso",
     controlsTitle: "1. Configuración",
     videoLabel: "Vídeo",
+    videoFieldHelp: "Carga o video que queres analizar. O obxecto debe verse con bo contraste respecto do fondo e a camara non debe moverse durante a gravacion.",
     sampleRateLabel: "Frecuencia de mostraxe",
+    sampleRateFieldHelp: "Indica cantas imaxes por segundo se usan para analizar o movemento.",
     templateSizeLabel: "Tamaño de referencia",
+    templateSizeFieldHelp: "Define o tamaño do recorte arredor do obxecto que o programa intentara recoñecer.",
     searchRadiusLabel: "Xanela de busca",
+    searchRadiusFieldHelp: "Marca ata onde buscara o obxecto no seguinte fotograma.",
     startTimeLabel: "Inicio da análise",
+    startTimeFieldHelp: "Fixa o instante desde o que queres comezar a medir.",
     endTimeLabel: "Fin da análise",
+    endTimeFieldHelp: "Fixa o instante no que rematara o seguimento.",
     orientationLabel: "Orientación do vídeo",
+    orientationFieldHelp: "Axusta como se mostra o video se foi gravado xirado.",
     orientationOriginal: "Orixinal",
     orientationHorizontal: "Horizontal automática",
     orientationVerticalCw: "Vertical xirando á dereita",
     orientationVerticalCcw: "Vertical xirando á esquerda",
     flipHorizontalLabel: "Flip horizontal para que o movemento vaia de esquerda a dereita",
+    flipHorizontalFieldHelp: "Invierte a imaxe en horizontal para que o avance quede cara á dereita.",
     flipVerticalLabel: "Flip vertical",
+    flipVerticalFieldHelp: "Invierte a imaxe arriba-abaixo se o video esta do reves.",
     scaleDistanceLabel: "Distancia real de referencia",
+    scaleDistanceFieldHelp: "E a distancia real entre os dous puntos que usaras para calibrar a escala.",
     scaleUnitTextLabel: "Unidade espacial",
+    scaleUnitTextFieldHelp: "Escribe a unidade que queres usar, por exemplo m, cm ou px se non calibras.",
     helpTitle: "Uso",
     helpStep1: "Carga un vídeo gravado co móbil ou descargado.",
     helpStep2: "Axusta o instante inicial, final, a velocidade e a orientación se o precisas.",
@@ -457,7 +493,7 @@ const translations = {
     helpStep5: "Opcionalmente, preme <strong>Calibrar escala</strong> e marca dous puntos separados por unha distancia coñecida.",
     helpStep6: "Para seguimento automático, fai clic sobre a masa ou a pelota e preme <strong>Iniciar seguimento</strong>.",
     helpStep7: "Se o automático falla, activa <strong>Modo manual</strong>, reproduce e vai facendo clic sobre o obxecto para debuxar a traxectoria.",
-    helpStep8: "Analiza as gráficas ou exporta os datos.",
+    helpStep8: "Analiza as gráficas, activa se queres a opcion de mostrar o axuste teorico e exporta os datos. As coordenadas exprésanse respecto do primeiro punto do seguimento.",
     viewerTitle: "2. Selección e seguimento",
     selectionStatusLabel: "Estado:",
     playerPlayAria: "Reproducir",
@@ -523,7 +559,7 @@ const translations = {
     summaryMaxSpeedHelp: "E a rapidez mais alta alcanzada nalgún momento do seguimento.",
     resultsTitle: "Datos obtidos",
     exportCsv: "Exportar CSV",
-    footerText: "Ferramenta estática preparada para GitHub Pages. As coordenadas exprésanse respecto do primeiro punto do seguimento.",
+    footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Licenza <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Suxestións e erros</a>.',
     canvasSelectVideo: "Carga un vídeo e fai clic sobre o obxecto.",
     canvasMoveAndMark: "Móvete ao instante desexado e marca o obxecto.",
     canvasMoveAndClick: "Móvete ao instante desexado e fai clic sobre o obxecto.",
@@ -615,22 +651,34 @@ const translations = {
     heroEyebrow: "DBHrako zinematika",
     heroTitle: "MotionTrackLab",
     heroLead: "Kargatu bideo bat, markatu pilota edo objektua, eta lortu posizio horizontalaren eta bertikalaren grafikoak denboraren arabera.",
+    usageLink: "Erabilera-argibideak",
     controlsTitle: "1. Konfigurazioa",
     videoLabel: "Bideoa",
+    videoFieldHelp: "Aztertu nahi duzun bideoa kargatu. Objektua atzeko planoarekiko kontraste onarekin ikusi behar da, eta kamerak ezin du mugitu grabazioan.",
     sampleRateLabel: "Laginketa-maiztasuna",
+    sampleRateFieldHelp: "Mugimendua aztertzeko segundo bakoitzeko zenbat irudi erabiltzen diren adierazten du.",
     templateSizeLabel: "Erreferentzia-tamaina",
+    templateSizeFieldHelp: "Programak ezagutzen saiatuko den objektuaren inguruko mozketa-tamaina definitzen du.",
     searchRadiusLabel: "Bilaketa-leihoa",
+    searchRadiusFieldHelp: "Hurrengo fotograman objektua noraino bilatuko duen adierazten du.",
     startTimeLabel: "Analisiaren hasiera",
+    startTimeFieldHelp: "Neurtzen hasi nahi duzun unea finkatzen du.",
     endTimeLabel: "Analisiaren amaiera",
+    endTimeFieldHelp: "Jarraipena noiz amaituko den finkatzen du.",
     orientationLabel: "Bideoaren orientazioa",
+    orientationFieldHelp: "Bideoa biratuta grabatu bada nola erakusten den doitzen du.",
     orientationOriginal: "Jatorrizkoa",
     orientationHorizontal: "Horizontal automatikoa",
     orientationVerticalCw: "Bertikala eskuinera biratuta",
     orientationVerticalCcw: "Bertikala ezkerrera biratuta",
     flipHorizontalLabel: "Flip horizontala mugimendua ezkerretik eskuinera joan dadin",
+    flipHorizontalFieldHelp: "Irudia horizontalean iraulita erakusten du aurrerapena eskuinerantz gera dadin.",
     flipVerticalLabel: "Flip bertikala",
+    flipVerticalFieldHelp: "Bideoa buruz behera badago, irudia goitik behera iraultzen du.",
     scaleDistanceLabel: "Erreferentziako benetako distantzia",
+    scaleDistanceFieldHelp: "Eskala kalibratzeko erabiliko dituzun bi puntuen arteko benetako distantzia da.",
     scaleUnitTextLabel: "Espazio-unitatea",
+    scaleUnitTextFieldHelp: "Idatzi erabili nahi duzun unitatea, adibidez m, cm edo px kalibratzen ez baduzu.",
     helpTitle: "Erabilera",
     helpStep1: "Kargatu mugikorrarekin grabatutako edo deskargatutako bideo bat.",
     helpStep2: "Doitu hasierako eta amaierako unea, abiadura eta orientazioa behar baduzu.",
@@ -639,7 +687,7 @@ const translations = {
     helpStep5: "Aukeran, sakatu <strong>Eskala kalibratu</strong> eta markatu distantzia ezagun batez bereizitako bi puntu.",
     helpStep6: "Jarraipen automatikoa egiteko, egin klik masaren edo pilotaren gainean eta sakatu <strong>Jarraipena hasi</strong>.",
     helpStep7: "Automatikoak huts egiten badu, aktibatu <strong>Eskuzko modua</strong>, erreproduzitu eta egin klik objektuan ibilbidea marrazteko.",
-    helpStep8: "Aztertu grafikoak edo esportatu datuak.",
+    helpStep8: "Aztertu grafikoak, nahi baduzu aktibatu doikuntza teorikoa erakusteko aukera, eta esportatu datuak. Koordenatuak jarraipeneko lehen puntuarekiko adierazten dira.",
     viewerTitle: "2. Hautaketa eta jarraipena",
     selectionStatusLabel: "Egoera:",
     playerPlayAria: "Erreproduzitu",
@@ -705,7 +753,7 @@ const translations = {
     summaryMaxSpeedHelp: "Jarraipeneko uneren batean lortutako abiadurarik handiena da.",
     resultsTitle: "Lortutako datuak",
     exportCsv: "CSV esportatu",
-    footerText: "GitHub Pages-erako prestatutako tresna estatikoa. Koordenatuak jarraipeneko lehen puntuarekiko adierazten dira.",
+    footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a> lizentzia. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Iradokizunak eta erroreak</a>.',
     canvasSelectVideo: "Kargatu bideo bat eta egin klik objektuaren gainean.",
     canvasMoveAndMark: "Mugitu nahi duzun unera eta markatu objektua.",
     canvasMoveAndClick: "Mugitu nahi duzun unera eta egin klik objektuaren gainean.",
@@ -797,22 +845,34 @@ const translations = {
     heroEyebrow: "Kinematics for secondary school",
     heroTitle: "MotionTrackLab",
     heroLead: "Load a video, mark the ball or object, and get horizontal and vertical position graphs as a function of time.",
+    usageLink: "How to use it",
     controlsTitle: "1. Setup",
     videoLabel: "Video",
+    videoFieldHelp: "Load the video you want to analyze. The object should stand out clearly from the background and the camera should stay still while recording.",
     sampleRateLabel: "Sampling rate",
+    sampleRateFieldHelp: "Indicates how many frames per second are used to analyze the motion.",
     templateSizeLabel: "Reference size",
+    templateSizeFieldHelp: "Defines the size of the crop around the object that the program will try to recognize.",
     searchRadiusLabel: "Search window",
+    searchRadiusFieldHelp: "Sets how far the object will be searched for in the next frame.",
     startTimeLabel: "Analysis start",
+    startTimeFieldHelp: "Sets the instant from which you want to start measuring.",
     endTimeLabel: "Analysis end",
+    endTimeFieldHelp: "Sets the instant at which tracking will stop.",
     orientationLabel: "Video orientation",
+    orientationFieldHelp: "Adjusts how the video is displayed if it was recorded rotated.",
     orientationOriginal: "Original",
     orientationHorizontal: "Automatic horizontal",
     orientationVerticalCw: "Vertical rotated to the right",
     orientationVerticalCcw: "Vertical rotated to the left",
     flipHorizontalLabel: "Horizontal flip so motion goes from left to right",
+    flipHorizontalFieldHelp: "Flips the image horizontally so the motion appears toward the right.",
     flipVerticalLabel: "Vertical flip",
+    flipVerticalFieldHelp: "Flips the image upside down if the video is inverted.",
     scaleDistanceLabel: "Real reference distance",
+    scaleDistanceFieldHelp: "This is the real distance between the two points you will use to calibrate the scale.",
     scaleUnitTextLabel: "Spatial unit",
+    scaleUnitTextFieldHelp: "Write the unit you want to use, for example m, cm or px if you do not calibrate.",
     helpTitle: "How to use it",
     helpStep1: "Load a video recorded on your phone or downloaded.",
     helpStep2: "Adjust the start and end instants, speed, and orientation if needed.",
@@ -821,7 +881,7 @@ const translations = {
     helpStep5: "Optionally, click <strong>Calibrate scale</strong> and mark two points separated by a known distance.",
     helpStep6: "For automatic tracking, click on the mass or ball and then click <strong>Start tracking</strong>.",
     helpStep7: "If automatic tracking fails, enable <strong>Manual mode</strong>, play the clip, and keep clicking on the object to draw the path.",
-    helpStep8: "Analyze the graphs or export the data.",
+    helpStep8: "Analyze the graphs, enable the option to show the theoretical fit if you want, and export the data. Coordinates are expressed relative to the first tracked point.",
     viewerTitle: "2. Selection and tracking",
     selectionStatusLabel: "Status:",
     playerPlayAria: "Play",
@@ -887,7 +947,7 @@ const translations = {
     summaryMaxSpeedHelp: "It is the highest speed reached at any moment during the tracking.",
     resultsTitle: "Recorded data",
     exportCsv: "Export CSV",
-    footerText: "Static tool prepared for GitHub Pages. Coordinates are expressed relative to the first tracked point.",
+    footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Licensed under <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Suggestions and issues</a>.',
     canvasSelectVideo: "Load a video and click on the object.",
     canvasMoveAndMark: "Move to the desired instant and mark the object.",
     canvasMoveAndClick: "Move to the desired instant and click on the object.",
@@ -1152,22 +1212,23 @@ function renderStaticTexts() {
   setText("heroEyebrow", "heroEyebrow");
   setText("heroTitle", "heroTitle");
   setText("heroLead", "heroLead");
+  setText("usageLink", "usageLink");
   setText("controlsTitle", "controlsTitle");
-  setText("videoLabel", "videoLabel");
-  setText("sampleRateLabel", "sampleRateLabel");
-  setText("templateSizeLabel", "templateSizeLabel");
-  setText("searchRadiusLabel", "searchRadiusLabel");
-  setText("startTimeLabel", "startTimeLabel");
-  setText("endTimeLabel", "endTimeLabel");
-  setText("orientationLabel", "orientationLabel");
+  setHeadingWithInfo("videoLabel", "videoLabel", "videoFieldHelp");
+  setHeadingWithInfo("sampleRateLabel", "sampleRateLabel", "sampleRateFieldHelp");
+  setHeadingWithInfo("templateSizeLabel", "templateSizeLabel", "templateSizeFieldHelp");
+  setHeadingWithInfo("searchRadiusLabel", "searchRadiusLabel", "searchRadiusFieldHelp");
+  setHeadingWithInfo("startTimeLabel", "startTimeLabel", "startTimeFieldHelp");
+  setHeadingWithInfo("endTimeLabel", "endTimeLabel", "endTimeFieldHelp");
+  setHeadingWithInfo("orientationLabel", "orientationLabel", "orientationFieldHelp");
   setText("orientationOriginal", "orientationOriginal");
   setText("orientationHorizontal", "orientationHorizontal");
   setText("orientationVerticalCw", "orientationVerticalCw");
   setText("orientationVerticalCcw", "orientationVerticalCcw");
-  setText("flipHorizontalLabel", "flipHorizontalLabel");
-  setText("flipVerticalLabel", "flipVerticalLabel");
-  setText("scaleDistanceLabel", "scaleDistanceLabel");
-  setText("scaleUnitTextLabel", "scaleUnitTextLabel");
+  setHeadingWithInfo("flipHorizontalLabel", "flipHorizontalLabel", "flipHorizontalFieldHelp");
+  setHeadingWithInfo("flipVerticalLabel", "flipVerticalLabel", "flipVerticalFieldHelp");
+  setHeadingWithInfo("scaleDistanceLabel", "scaleDistanceLabel", "scaleDistanceFieldHelp");
+  setHeadingWithInfo("scaleUnitTextLabel", "scaleUnitTextLabel", "scaleUnitTextFieldHelp");
   setText("helpTitle", "helpTitle");
   setHtml("helpStep1", "helpStep1");
   setHtml("helpStep2", "helpStep2");
@@ -1205,7 +1266,7 @@ function renderStaticTexts() {
   setText("fitPanelLead", "fitPanelLead");
   setText("resultsTitle", "resultsTitle");
   setText("exportBtn", "exportCsv");
-  setText("footerText", "footerText");
+  setHtml("footerText", "footerText");
 }
 
 function applyLanguage(preference, persist = true) {
@@ -1649,6 +1710,13 @@ function buildHeadingWithInfo(titleKey, helpKey) {
       <span class="info-tooltip" hidden>${t(helpKey)}</span>
     </span>
   `;
+}
+
+function setHeadingWithInfo(id, titleKey, helpKey) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.innerHTML = buildHeadingWithInfo(titleKey, helpKey);
+  }
 }
 
 function renderFitPanel() {
