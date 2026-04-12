@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MotionTrackLab</title>
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__content">
+      <div class="hero__topbar">
+        <div>
+          <p id="heroEyebrow" class="eyebrow">Cinemática para ESO</p>
+          <h1 id="heroTitle">MotionTrackLab</h1>
+          <p id="heroLead" class="lead">
+            Carga un vídeo, marca la pelota o el objeto y obtén las gráficas de posición horizontal y vertical en función del tiempo.
+          </p>
+        </div>
+        <div class="hero__tools">
+          <label class="language-picker" for="languageSelect">
+            <span id="languageLabel">Idioma</span>
+            <select id="languageSelect">
+              <option value="auto">Auto</option>
+              <option value="es">Español</option>
+              <option value="ca">Català (Catalunya)</option>
+              <option value="gl">Galego</option>
+              <option value="eu">Euskara</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+          <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false">
+            <span class="theme-toggle__icon" aria-hidden="true">◐</span>
+            <span id="themeToggleLabel">Modo oscuro</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel controls">
+      <h2 id="controlsTitle">1. Configuración</h2>
+
+      <label class="field">
+        <span id="videoLabel">Vídeo</span>
+        <input id="videoInput" type="file" accept="video/*">
+      </label>
+
+      <div class="field">
+        <span id="sampleRateLabel">Frecuencia de muestreo</span>
+        <div class="inline-field">
+          <input id="sampleRate" type="number" min="1" max="60" step="1" value="12">
+          <span>fps</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <span id="templateSizeLabel">Tamaño de referencia</span>
+        <div class="inline-field">
+          <input id="templateSize" type="number" min="9" max="61" step="2" value="21">
+          <span>px</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <span id="searchRadiusLabel">Ventana de búsqueda</span>
+        <div class="inline-field">
+          <input id="searchRadius" type="number" min="6" max="180" step="1" value="60">
+          <span>px</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <span id="startTimeLabel">Inicio del análisis</span>
+        <div class="inline-field">
+          <input id="startTime" type="number" min="0" step="0.1" value="0">
+          <span>s</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <span id="endTimeLabel">Fin del análisis</span>
+        <div class="inline-field">
+          <input id="endTime" type="number" min="0" step="0.1" value="0">
+          <span>s</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <span id="orientationLabel">Orientación del vídeo</span>
+        <select id="orientationMode">
+          <option id="orientationOriginal" value="original">Original</option>
+          <option id="orientationHorizontal" value="horizontal">Horizontal automática</option>
+          <option id="orientationVerticalCw" value="vertical-cw">Vertical girando a la derecha</option>
+          <option id="orientationVerticalCcw" value="vertical-ccw">Vertical girando a la izquierda</option>
+        </select>
+      </div>
+
+      <label class="checkbox-field">
+        <input id="flipHorizontal" type="checkbox">
+        <span id="flipHorizontalLabel">Flip horizontal para que el movimiento vaya de izquierda a derecha</span>
+      </label>
+
+      <label class="checkbox-field">
+        <input id="flipVertical" type="checkbox">
+        <span id="flipVerticalLabel">Flip vertical</span>
+      </label>
+
+      <div class="field">
+        <span id="scaleDistanceLabel">Distancia real de referencia</span>
+        <div class="inline-field">
+          <input id="scaleDistance" type="number" min="0.01" step="0.01" value="1">
+          <span id="scaleUnitLabel">m</span>
+        </div>
+      </div>
+
+      <label class="field">
+        <span id="scaleUnitTextLabel">Unidad espacial</span>
+        <input id="scaleUnit" type="text" value="m" maxlength="10" placeholder="m">
+      </label>
+
+      <div class="help">
+        <h3 id="helpTitle">Uso</h3>
+        <ol>
+          <li id="helpStep1">Carga un vídeo grabado con el móvil o descargado.</li>
+          <li id="helpStep2">Ajusta el instante inicial, final, la velocidad y la orientación si lo necesitas.</li>
+          <li id="helpStep3">Usa <strong>flip horizontal</strong> si quieres que el avance quede de izquierda a derecha.</li>
+          <li id="helpStep4">Muévete por el vídeo con la barra y deja visible el instante que quieres analizar.</li>
+          <li id="helpStep5">Opcionalmente, pulsa <strong>Calibrar escala</strong> y marca dos puntos separados una distancia conocida.</li>
+          <li id="helpStep6">Para seguimiento automático, haz clic sobre la masa o la pelota y pulsa <strong>Iniciar seguimiento</strong>.</li>
+          <li id="helpStep7">Si el automático falla, activa <strong>Modo manual</strong>, reproduce y ve haciendo clic sobre el objeto para dibujar la trayectoria.</li>
+          <li id="helpStep8">Analiza las gráficas o exporta los datos.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="panel viewer">
+      <h2 id="viewerTitle">2. Selección y seguimiento</h2>
+      <div class="selection-status" id="selectionStatus">
+        <strong>Estado:</strong> Todavía no hay punto seleccionado.
+      </div>
+      <div class="viewer-workspace">
+        <div class="viewer-stage">
+          <div class="canvas-wrap">
+            <canvas id="videoCanvas" width="960" height="540"></canvas>
+            <div id="canvasHint" class="canvas-hint">Carga un vídeo y haz clic sobre el objeto.</div>
+            <div id="selectionToast" class="selection-toast" hidden>Punto marcado</div>
+          </div>
+          <div class="player-bar">
+            <button id="playPauseBtn" class="player-bar__toggle" type="button" disabled aria-label="Reproducir">▶</button>
+            <div class="timeline-range-wrap">
+              <div class="timeline-selection" aria-hidden="true"></div>
+              <div class="timeline-boundary timeline-boundary--start" aria-hidden="true"></div>
+              <div class="timeline-boundary timeline-boundary--end" aria-hidden="true"></div>
+              <input id="timelineRange" class="timeline-range" type="range" min="0" max="0" step="0.01" value="0" disabled>
+            </div>
+            <div id="timelineCurrentLabel" class="player-bar__time">0.00 s</div>
+          </div>
+          <div class="player-actions">
+            <button id="setStartBtn" class="button button--subtle" type="button" disabled>Inicio aquí</button>
+            <button id="setEndBtn" class="button button--subtle" type="button" disabled>Fin aquí</button>
+            <button id="jumpStartBtn" class="button button--subtle" type="button" disabled>Ir al inicio</button>
+            <button id="jumpEndBtn" class="button button--subtle" type="button" disabled>Ir al fin</button>
+            <button id="resetBtn" class="button button--subtle" type="button">Reiniciar</button>
+            <label class="player-speed" for="playbackRate">
+              <span id="playbackRateLabel">Velocidad</span>
+              <input id="playbackRate" type="number" min="0.01" max="3" step="0.01" value="1">
+              <span>x</span>
+            </label>
+          </div>
+          <div class="timeline-markers">
+            <span id="timelineStartLabel">Inicio: 0.00 s</span>
+            <span id="timelineEndLabel">Fin: 0.00 s</span>
+          </div>
+          <div class="legend">
+            <span id="legendTarget"><i class="dot dot--target"></i>Punto seguido</span>
+            <span id="legendPath"><i class="dot dot--path"></i>Trayectoria</span>
+          </div>
+        </div>
+        <aside class="viewer-actions">
+          <div class="actions actions--viewer">
+            <button id="manualModeBtn" type="button" disabled>Modo manual</button>
+            <button id="calibrateBtn" type="button" disabled>Calibrar escala</button>
+            <button id="trackBtn" type="button" disabled>Iniciar seguimiento</button>
+          </div>
+          <div id="status" class="status">Selecciona un vídeo para empezar.</div>
+        </aside>
+      </div>
+      <video id="sourceVideo" preload="metadata" playsinline hidden></video>
+    </section>
+
+    <section class="panel charts">
+      <div class="charts-header">
+        <h2 id="chartsTitle">3. Gráficas</h2>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3 id="chartXTitle">Posición horizontal x(t)</h3>
+          <canvas id="chartX"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 id="chartYTitle">Posición vertical y(t)</h3>
+          <canvas id="chartY"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 id="chartVTitle">Velocidad instantánea v(t)</h3>
+          <canvas id="chartV"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 id="chartXYTitle">Recorrido en el plano x-y</h3>
+          <canvas id="chartXY"></canvas>
+        </div>
+      </div>
+
+      <div class="summary-wrap">
+        <h3 id="summaryTitle">Resumen</h3>
+        <div id="summaryGrid" class="summary-grid">
+          <div class="summary-card">
+            <span class="summary-card__label">Tiempo total</span>
+            <strong class="summary-card__value">-</strong>
+          </div>
+          <div class="summary-card">
+            <span class="summary-card__label">Desplazamiento horizontal</span>
+            <strong class="summary-card__value">-</strong>
+          </div>
+          <div class="summary-card">
+            <span class="summary-card__label">Desplazamiento vertical</span>
+            <strong class="summary-card__value">-</strong>
+          </div>
+          <div class="summary-card">
+            <span class="summary-card__label">Distancia recorrida</span>
+            <strong class="summary-card__value">-</strong>
+          </div>
+          <div class="summary-card">
+            <span class="summary-card__label">Rapidez media</span>
+            <strong class="summary-card__value">-</strong>
+          </div>
+          <div class="summary-card">
+            <span class="summary-card__label">Velocidad máxima</span>
+            <strong class="summary-card__value">-</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="charts-header">
+          <h3 id="resultsTitle">Datos obtenidos</h3>
+          <button id="exportBtn" class="button button--subtle" type="button" disabled>Exportar CSV</button>
+        </div>
+        <div class="table-scroll">
+          <table id="resultsTable">
+            <thead>
+              <tr>
+                <th>t (s)</th>
+                <th>x</th>
+                <th>y</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p id="footerText">Herramienta estática preparada para GitHub Pages. Las coordenadas se expresan respecto al primer punto del seguimiento.</p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
