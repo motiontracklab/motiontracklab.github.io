@@ -9,8 +9,6 @@ const timelineRange = document.getElementById("timelineRange");
 const timelineRangeWrap = document.getElementById("timelineRangeWrap");
 const timelineStartHandle = document.getElementById("timelineStartHandle");
 const timelineEndHandle = document.getElementById("timelineEndHandle");
-const setStartBtn = document.getElementById("setStartBtn");
-const setEndBtn = document.getElementById("setEndBtn");
 const jumpStartBtn = document.getElementById("jumpStartBtn");
 const jumpEndBtn = document.getElementById("jumpEndBtn");
 const timelineCurrentLabel = document.getElementById("timelineCurrentLabel");
@@ -20,6 +18,8 @@ const themeToggleBtn = document.getElementById("themeToggle");
 const themeToggleLabel = document.getElementById("themeToggleLabel");
 const languageSelect = document.getElementById("languageSelect");
 const sampleRateHint = document.getElementById("sampleRateHint");
+const orientationToggleBtn = document.getElementById("orientationToggleBtn");
+const viewerTools = document.getElementById("viewerTools");
 
 const sampleRateInput = document.getElementById("sampleRate");
 const templateSizeInput = document.getElementById("templateSize");
@@ -28,8 +28,8 @@ const startTimeInput = document.getElementById("startTime");
 const endTimeInput = document.getElementById("endTime");
 const playbackRateInput = document.getElementById("playbackRate");
 const scaleDistanceInput = document.getElementById("scaleDistance");
-const scaleUnitInput = document.getElementById("scaleUnit");
-const scaleUnitLabel = document.getElementById("scaleUnitLabel");
+const calibrationEditor = document.getElementById("calibrationEditor");
+const applyCalibrationBtn = document.getElementById("applyCalibrationBtn");
 const orientationSelect = document.getElementById("orientationMode");
 const flipHorizontalInput = document.getElementById("flipHorizontal");
 const flipVerticalInput = document.getElementById("flipVertical");
@@ -97,20 +97,20 @@ const translations = {
     orientationHorizontal: "Horizontal automática",
     orientationVerticalCw: "Vertical girando a la derecha",
     orientationVerticalCcw: "Vertical girando a la izquierda",
-    flipHorizontalLabel: "Flip horizontal para que el movimiento vaya de izquierda a derecha",
+    flipHorizontalLabel: "Flip horizontal",
     flipHorizontalFieldHelp: "Invierte la imagen en horizontal para que el avance quede hacia la derecha.",
     flipVerticalLabel: "Flip vertical",
     flipVerticalFieldHelp: "Invierte la imagen arriba-abajo si el vídeo está al revés.",
     scaleDistanceLabel: "Distancia real de referencia",
     scaleDistanceFieldHelp: "Es la distancia real entre los dos puntos que usarás para calibrar la escala.",
-    scaleUnitTextLabel: "Unidad espacial",
-    scaleUnitTextFieldHelp: "Escribe la unidad que quieres usar, por ejemplo m, cm o px si no calibras.",
+    calibrationEditorHint: "Define la distancia real en metros antes de marcar los dos puntos.",
+    calibrationApply: "Aplicar",
     helpTitle: "Uso",
     helpStep1: "Carga un vídeo grabado con el móvil o descargado.",
     helpStep2: "Ajusta el instante inicial, final, la velocidad y la orientación si lo necesitas.",
-    helpStep3: "Usa <strong>flip horizontal</strong> si quieres que el avance quede de izquierda a derecha.",
+    helpStep3: "Usa <strong>flip horizontal</strong> si lo necesitas.",
     helpStep4: "Muévete por el vídeo con la barra y deja visible el instante que quieres analizar.",
-    helpStep5: "Opcionalmente, pulsa <strong>Calibrar escala</strong> y marca dos puntos separados una distancia conocida.",
+    helpStep5: "Opcionalmente, pulsa <strong>Calibrar escala</strong>, indica la distancia real en metros, pulsa <strong>Aplicar</strong> y marca dos puntos separados esa distancia conocida.",
     helpStep6: "Para seguimiento automático, haz clic sobre la masa o la pelota y pulsa <strong>Iniciar seguimiento</strong>.",
     helpStep7: "Si el automático falla, activa <strong>Modo manual</strong>, reproduce y ve haciendo clic sobre el objeto para dibujar la trayectoria.",
     helpStep8: "Analiza las gráficas, activa si quieres la opción de mostrar el ajuste teórico y exporta los datos. Las coordenadas se expresan respecto al primer punto del seguimiento.",
@@ -118,8 +118,6 @@ const translations = {
     selectionStatusLabel: "Estado:",
     playerPlayAria: "Reproducir",
     playerPauseAria: "Pausar",
-    setStart: "Inicio aquí",
-    setEnd: "Fin aquí",
     jumpStart: "Ir al inicio",
     jumpEnd: "Ir al fin",
     reset: "Reiniciar",
@@ -135,9 +133,11 @@ const translations = {
     manualModeExit: "Salir manual",
     manualModeHelp: "Permite marcar a mano la posición del objeto en distintos instantes si el seguimiento automático falla.",
     calibrateScale: "Calibrar escala",
+    calibrateScaleCancel: "Cancelar calibración",
     calibrateScaleHelp: "Sirve para decirle al programa cuánto mide una distancia real y pasar de píxeles a unidades como metros.",
     startTracking: "Iniciar seguimiento",
     startTrackingHelp: "Hace que el programa siga automáticamente el objeto desde el punto marcado y calcule su trayectoria.",
+    startTrackingDisabledHint: "Antes debes hacer clic sobre el objeto del vídeo que deseas seguir.",
     statusSelectVideo: "Selecciona un vídeo para empezar.",
     chartsTitle: "3. Gráficas",
     chartXTitle: "Posición horizontal x(t)",
@@ -186,7 +186,7 @@ const translations = {
     canvasMoveAndMark: "Haz clic sobre el objeto para marcarlo en el fotograma visible.",
     canvasMoveAndClick: "Haz clic sobre el objeto para marcarlo en el fotograma visible.",
     canvasManualActive: "Modo manual activo: reproduce y haz clic sobre el objeto para guardar cada posición.",
-    canvasCalibrationReady: "Marca dos puntos separados por una distancia conocida.",
+    canvasCalibrationReady: "Haz clic en cada extremo de un objeto que mida {distance} m.",
     canvasScaleReady: "Escala calibrada. Ahora marca el objeto a seguir.",
     canvasTrackingInProgress: "Seguimiento en curso...",
     canvasTrackingDone: "Seguimiento completado.",
@@ -203,8 +203,9 @@ const translations = {
     selectionManualPoints: "Modo manual: {count} puntos guardados.",
     selectionManualFinished: "Modo manual finalizado con {count} puntos.",
     selectionManualOffNoPoint: "Modo manual desactivado. Todavía no hay punto seleccionado.",
-    selectionCalibrationActive: "Calibración activa: marca 2 puntos de referencia en {unit}.",
+    selectionCalibrationActive: "Calibración activa: haz clic en cada extremo de un objeto que mida {distance} m.",
     selectionCalibrationHalf: "Calibración activa: primer punto marcado, falta el segundo.",
+    selectionCalibrationReady: "Puntos de calibración marcados. Pulsa Aplicar para calibrar la escala.",
     selectionScaleReady: "Escala calibrada. Ya puedes marcar el objeto a seguir.",
     selectionTrackingInProgress: "Seguimiento en curso.",
     selectionTrackingDone: "Seguimiento completado con {count} puntos.",
@@ -221,7 +222,9 @@ const translations = {
     statusManualPointSaved: "Punto manual guardado en t={time}.",
     statusCalibrateMoveVideo: "Coloca primero el vídeo en el instante que quieras calibrar.",
     statusScaleDistancePositive: "La distancia real de referencia debe ser mayor que 0.",
-    statusCalibrationOn: "Calibración activada. Marca dos puntos que estén separados {distance} {unit}.",
+    statusCalibrationOn: "Haz clic en cada extremo de un objeto que mida {distance} m para calibrar la escala.",
+    statusCalibrationCancelled: "Calibración cancelada.",
+    statusCalibrationReady: "Puntos de calibración marcados. Pulsa Aplicar para calibrar la escala.",
     statusMarkPointFirst: "Debes marcar primero el punto a seguir.",
     statusProcessingSamples: "Procesando {count} muestras entre {start} y {end}...",
     statusProcessingSample: "Procesando muestra {index} de {count}...",
@@ -296,20 +299,20 @@ const translations = {
     orientationHorizontal: "Horitzontal automàtica",
     orientationVerticalCw: "Vertical girant cap a la dreta",
     orientationVerticalCcw: "Vertical girant cap a l'esquerra",
-    flipHorizontalLabel: "Flip horitzontal perquè el moviment vagi d'esquerra a dreta",
+    flipHorizontalLabel: "Flip horitzontal",
     flipHorizontalFieldHelp: "Inverteix la imatge en horitzontal perquè l'avanç quedi cap a la dreta.",
     flipVerticalLabel: "Flip vertical",
     flipVerticalFieldHelp: "Inverteix la imatge de dalt a baix si el vídeo està capgirat.",
     scaleDistanceLabel: "Distància real de referència",
     scaleDistanceFieldHelp: "És la distància real entre els dos punts que faràs servir per calibrar l'escala.",
-    scaleUnitTextLabel: "Unitat espacial",
-    scaleUnitTextFieldHelp: "Escriu la unitat que vols usar, per exemple m, cm o px si no calibres.",
+    calibrationEditorHint: "Defineix la distància real en metres abans de marcar els dos punts.",
+    calibrationApply: "Aplica",
     helpTitle: "Ús",
     helpStep1: "Carrega un vídeo gravat amb el mòbil o descarregat.",
     helpStep2: "Ajusta l'instant inicial, el final, la velocitat i l'orientació si ho necessites.",
-    helpStep3: "Fes servir <strong>flip horitzontal</strong> si vols que l'avanç quedi d'esquerra a dreta.",
+    helpStep3: "Fes servir <strong>flip horitzontal</strong> si ho necessites.",
     helpStep4: "Mou-te pel vídeo amb la barra i deixa visible l'instant que vols analitzar.",
-    helpStep5: "Opcionalment, prem <strong>Calibrar escala</strong> i marca dos punts separats per una distància coneguda.",
+    helpStep5: "Opcionalment, prem <strong>Calibrar escala</strong>, indica la distància real en metres, prem <strong>Aplica</strong> i marca dos punts separats per aquesta distància coneguda.",
     helpStep6: "Per al seguiment automàtic, fes clic sobre la massa o la pilota i prem <strong>Iniciar seguiment</strong>.",
     helpStep7: "Si l'automàtic falla, activa <strong>Mode manual</strong>, reprodueix i ves fent clic sobre l'objecte per dibuixar la trajectòria.",
     helpStep8: "Analitza les gràfiques, activa si vols l'opció de mostrar l'ajust teòric i exporta les dades. Les coordenades s'expressen respecte del primer punt del seguiment.",
@@ -317,8 +320,6 @@ const translations = {
     selectionStatusLabel: "Estat:",
     playerPlayAria: "Reprodueix",
     playerPauseAria: "Pausa",
-    setStart: "Inici aquí",
-    setEnd: "Final aquí",
     jumpStart: "Ves a l'inici",
     jumpEnd: "Ves al final",
     reset: "Reinicia",
@@ -334,9 +335,11 @@ const translations = {
     manualModeExit: "Surt del manual",
     manualModeHelp: "Permet marcar a mà la posició de l'objecte en diferents instants si el seguiment automàtic falla.",
     calibrateScale: "Calibrar escala",
+    calibrateScaleCancel: "Cancel·lar calibració",
     calibrateScaleHelp: "Serveix per dir al programa quant mesura una distància real i passar de píxels a unitats com metres.",
     startTracking: "Iniciar seguiment",
     startTrackingHelp: "Fa que el programa segueixi automàticament l'objecte des del punt marcat i calculi la trajectòria.",
+    startTrackingDisabledHint: "Abans has de fer clic sobre l'objecte del vídeo que vols seguir.",
     statusSelectVideo: "Selecciona un vídeo per començar.",
     chartsTitle: "3. Gràfiques",
     chartXTitle: "Posició horitzontal x(t)",
@@ -385,7 +388,7 @@ const translations = {
     canvasMoveAndMark: "Fes clic sobre l'objecte per marcar-lo al fotograma visible.",
     canvasMoveAndClick: "Fes clic sobre l'objecte per marcar-lo al fotograma visible.",
     canvasManualActive: "Mode manual actiu: reprodueix i fes clic sobre l'objecte per desar cada posició.",
-    canvasCalibrationReady: "Marca dos punts separats per una distància coneguda.",
+    canvasCalibrationReady: "Fes clic a cada extrem d'un objecte que faci {distance} m.",
     canvasScaleReady: "Escala calibrada. Ara marca l'objecte a seguir.",
     canvasTrackingInProgress: "Seguiment en curs...",
     canvasTrackingDone: "Seguiment completat.",
@@ -402,8 +405,9 @@ const translations = {
     selectionManualPoints: "Mode manual: {count} punts desats.",
     selectionManualFinished: "Mode manual finalitzat amb {count} punts.",
     selectionManualOffNoPoint: "Mode manual desactivat. Encara no hi ha cap punt seleccionat.",
-    selectionCalibrationActive: "Calibratge actiu: marca 2 punts de referència en {unit}.",
+    selectionCalibrationActive: "Calibratge actiu: fes clic a cada extrem d'un objecte que faci {distance} m.",
     selectionCalibrationHalf: "Calibratge actiu: primer punt marcat, en falta el segon.",
+    selectionCalibrationReady: "Punts de calibratge marcats. Prem Aplica per calibrar l'escala.",
     selectionScaleReady: "Escala calibrada. Ja pots marcar l'objecte a seguir.",
     selectionTrackingInProgress: "Seguiment en curs.",
     selectionTrackingDone: "Seguiment completat amb {count} punts.",
@@ -420,7 +424,9 @@ const translations = {
     statusManualPointSaved: "Punt manual desat a t={time}.",
     statusCalibrateMoveVideo: "Col·loca primer el vídeo a l'instant que vulguis calibrar.",
     statusScaleDistancePositive: "La distància real de referència ha de ser més gran que 0.",
-    statusCalibrationOn: "Calibratge activat. Marca dos punts que estiguin separats {distance} {unit}.",
+    statusCalibrationOn: "Fes clic a cada extrem d'un objecte que faci {distance} m per calibrar l'escala.",
+    statusCalibrationCancelled: "Calibratge cancel·lat.",
+    statusCalibrationReady: "Punts de calibratge marcats. Prem Aplica per calibrar l'escala.",
     statusMarkPointFirst: "Has de marcar primer el punt que vols seguir.",
     statusProcessingSamples: "Processant {count} mostres entre {start} i {end}...",
     statusProcessingSample: "Processant mostra {index} de {count}...",
@@ -495,20 +501,20 @@ const translations = {
     orientationHorizontal: "Horizontal automática",
     orientationVerticalCw: "Vertical xirando á dereita",
     orientationVerticalCcw: "Vertical xirando á esquerda",
-    flipHorizontalLabel: "Flip horizontal para que o movemento vaia de esquerda a dereita",
+    flipHorizontalLabel: "Flip horizontal",
     flipHorizontalFieldHelp: "Invierte a imaxe en horizontal para que o avance quede cara á dereita.",
     flipVerticalLabel: "Flip vertical",
     flipVerticalFieldHelp: "Invierte a imaxe arriba-abaixo se o vídeo está do revés.",
     scaleDistanceLabel: "Distancia real de referencia",
     scaleDistanceFieldHelp: "É a distancia real entre os dous puntos que usarás para calibrar a escala.",
-    scaleUnitTextLabel: "Unidade espacial",
-    scaleUnitTextFieldHelp: "Escribe a unidade que queres usar, por exemplo m, cm ou px se non calibras.",
+    calibrationEditorHint: "Define a distancia real en metros antes de marcar os dous puntos.",
+    calibrationApply: "Aplicar",
     helpTitle: "Uso",
     helpStep1: "Carga un vídeo gravado co móbil ou descargado.",
     helpStep2: "Axusta o instante inicial, final, a velocidade e a orientación se o precisas.",
-    helpStep3: "Usa <strong>flip horizontal</strong> se queres que o avance quede de esquerda a dereita.",
+    helpStep3: "Usa <strong>flip horizontal</strong> se o precisas.",
     helpStep4: "Móvete polo vídeo coa barra e deixa visible o instante que queres analizar.",
-    helpStep5: "Opcionalmente, preme <strong>Calibrar escala</strong> e marca dous puntos separados por unha distancia coñecida.",
+    helpStep5: "Opcionalmente, preme <strong>Calibrar escala</strong>, indica a distancia real en metros, preme <strong>Aplicar</strong> e marca dous puntos separados por esa distancia coñecida.",
     helpStep6: "Para seguimento automático, fai clic sobre a masa ou a pelota e preme <strong>Iniciar seguimento</strong>.",
     helpStep7: "Se o automático falla, activa <strong>Modo manual</strong>, reproduce e vai facendo clic sobre o obxecto para debuxar a traxectoria.",
     helpStep8: "Analiza as gráficas, activa se queres a opción de mostrar o axuste teórico e exporta os datos. As coordenadas exprésanse respecto do primeiro punto do seguimento.",
@@ -516,8 +522,6 @@ const translations = {
     selectionStatusLabel: "Estado:",
     playerPlayAria: "Reproducir",
     playerPauseAria: "Pausar",
-    setStart: "Inicio aquí",
-    setEnd: "Fin aquí",
     jumpStart: "Ir ao inicio",
     jumpEnd: "Ir ao fin",
     reset: "Reiniciar",
@@ -533,9 +537,11 @@ const translations = {
     manualModeExit: "Saír do manual",
     manualModeHelp: "Permite marcar a man a posición do obxecto en distintos instantes se o seguimento automático falla.",
     calibrateScale: "Calibrar escala",
+    calibrateScaleCancel: "Cancelar calibración",
     calibrateScaleHelp: "Serve para dicirlle ao programa canto mide unha distancia real e pasar de píxeles a unidades como metros.",
     startTracking: "Iniciar seguimento",
     startTrackingHelp: "Fai que o programa siga automaticamente o obxecto desde o punto marcado e calcule a súa traxectoria.",
+    startTrackingDisabledHint: "Antes debes facer clic sobre o obxecto do vídeo que queres seguir.",
     statusSelectVideo: "Selecciona un vídeo para comezar.",
     chartsTitle: "3. Gráficas",
     chartXTitle: "Posición horizontal x(t)",
@@ -584,7 +590,7 @@ const translations = {
     canvasMoveAndMark: "Fai clic sobre o obxecto para marcalo no fotograma visible.",
     canvasMoveAndClick: "Fai clic sobre o obxecto para marcalo no fotograma visible.",
     canvasManualActive: "Modo manual activo: reproduce e fai clic sobre o obxecto para gardar cada posición.",
-    canvasCalibrationReady: "Marca dous puntos separados por unha distancia coñecida.",
+    canvasCalibrationReady: "Fai clic en cada extremo dun obxecto que mida {distance} m.",
     canvasScaleReady: "Escala calibrada. Agora marca o obxecto que hai que seguir.",
     canvasTrackingInProgress: "Seguimento en curso...",
     canvasTrackingDone: "Seguimento completado.",
@@ -601,8 +607,9 @@ const translations = {
     selectionManualPoints: "Modo manual: {count} puntos gardados.",
     selectionManualFinished: "Modo manual finalizado con {count} puntos.",
     selectionManualOffNoPoint: "Modo manual desactivado. Aínda non hai ningún punto seleccionado.",
-    selectionCalibrationActive: "Calibración activa: marca 2 puntos de referencia en {unit}.",
+    selectionCalibrationActive: "Calibración activa: fai clic en cada extremo dun obxecto que mida {distance} m.",
     selectionCalibrationHalf: "Calibración activa: primeiro punto marcado, falta o segundo.",
+    selectionCalibrationReady: "Puntos de calibración marcados. Preme Aplicar para calibrar a escala.",
     selectionScaleReady: "Escala calibrada. Xa podes marcar o obxecto que hai que seguir.",
     selectionTrackingInProgress: "Seguimento en curso.",
     selectionTrackingDone: "Seguimento completado con {count} puntos.",
@@ -619,7 +626,9 @@ const translations = {
     statusManualPointSaved: "Punto manual gardado en t={time}.",
     statusCalibrateMoveVideo: "Coloca primeiro o vídeo no instante que queiras calibrar.",
     statusScaleDistancePositive: "A distancia real de referencia debe ser maior ca 0.",
-    statusCalibrationOn: "Calibración activada. Marca dous puntos que estean separados {distance} {unit}.",
+    statusCalibrationOn: "Fai clic en cada extremo dun obxecto que mida {distance} m para calibrar a escala.",
+    statusCalibrationCancelled: "Calibración cancelada.",
+    statusCalibrationReady: "Puntos de calibración marcados. Preme Aplicar para calibrar a escala.",
     statusMarkPointFirst: "Debes marcar primeiro o punto que hai que seguir.",
     statusProcessingSamples: "Procesando {count} mostras entre {start} e {end}...",
     statusProcessingSample: "Procesando mostra {index} de {count}...",
@@ -694,20 +703,20 @@ const translations = {
     orientationHorizontal: "Horizontal automatikoa",
     orientationVerticalCw: "Bertikala eskuinera biratuta",
     orientationVerticalCcw: "Bertikala ezkerrera biratuta",
-    flipHorizontalLabel: "Flip horizontala mugimendua ezkerretik eskuinera joan dadin",
+    flipHorizontalLabel: "Flip horizontala",
     flipHorizontalFieldHelp: "Irudia horizontalean iraulita erakusten du aurrerapena eskuinerantz gera dadin.",
     flipVerticalLabel: "Flip bertikala",
     flipVerticalFieldHelp: "Bideoa buruz behera badago, irudia goitik behera iraultzen du.",
     scaleDistanceLabel: "Erreferentziako benetako distantzia",
     scaleDistanceFieldHelp: "Eskala kalibratzeko erabiliko dituzun bi puntuen arteko benetako distantzia da.",
-    scaleUnitTextLabel: "Espazio-unitatea",
-    scaleUnitTextFieldHelp: "Idatzi erabili nahi duzun unitatea, adibidez m, cm edo px kalibratzen ez baduzu.",
+    calibrationEditorHint: "Zehaztu benetako distantzia metrotan bi puntuak markatu aurretik.",
+    calibrationApply: "Aplikatu",
     helpTitle: "Erabilera",
     helpStep1: "Kargatu mugikorrarekin grabatutako edo deskargatutako bideo bat.",
     helpStep2: "Doitu hasierako eta amaierako unea, abiadura eta orientazioa behar baduzu.",
-    helpStep3: "Erabili <strong>flip horizontala</strong> aurrerapena ezkerretik eskuinera geratzea nahi baduzu.",
+    helpStep3: "Erabili <strong>flip horizontala</strong> behar baduzu.",
     helpStep4: "Mugitu bideoan barraren bidez eta utzi ikusgai aztertu nahi duzun unea.",
-    helpStep5: "Aukeran, sakatu <strong>Eskala kalibratu</strong> eta markatu distantzia ezagun batez bereizitako bi puntu.",
+    helpStep5: "Aukeran, sakatu <strong>Eskala kalibratu</strong>, adierazi benetako distantzia metrotan, sakatu <strong>Aplikatu</strong> eta markatu distantzia ezagun horretaz bereizitako bi puntu.",
     helpStep6: "Jarraipen automatikoa egiteko, egin klik masaren edo pilotaren gainean eta sakatu <strong>Jarraipena hasi</strong>.",
     helpStep7: "Automatikoak huts egiten badu, aktibatu <strong>Eskuzko modua</strong>, erreproduzitu eta egin klik objektuan ibilbidea marrazteko.",
     helpStep8: "Aztertu grafikoak, nahi baduzu aktibatu doikuntza teorikoa erakusteko aukera, eta esportatu datuak. Koordenatuak jarraipeneko lehen puntuarekiko adierazten dira.",
@@ -715,8 +724,6 @@ const translations = {
     selectionStatusLabel: "Egoera:",
     playerPlayAria: "Erreproduzitu",
     playerPauseAria: "Pausatu",
-    setStart: "Hasiera hemen",
-    setEnd: "Amaiera hemen",
     jumpStart: "Joan hasierara",
     jumpEnd: "Joan amaierara",
     reset: "Berrezarri",
@@ -732,9 +739,11 @@ const translations = {
     manualModeExit: "Irten eskuzkotik",
     manualModeHelp: "Jarraipen automatikoak huts egiten badu, objektuaren posizioa eskuz markatzeko balio du.",
     calibrateScale: "Eskala kalibratu",
+    calibrateScaleCancel: "Utzi kalibrazioa",
     calibrateScaleHelp: "Programari benetako distantzia batek zenbat neurtzen duen esateko balio du, pixelak metro bezalako unitateetara pasatzeko.",
     startTracking: "Jarraipena hasi",
     startTrackingHelp: "Programak markatutako puntutik aurrera objektua automatikoki jarrai dezan eta ibilbidea kalkula dezan egiten du.",
+    startTrackingDisabledHint: "Lehenengo, klik egin behar duzu bideoan jarraitu nahi duzun objektuaren gainean.",
     statusSelectVideo: "Hautatu bideo bat hasteko.",
     chartsTitle: "3. Grafikoak",
     chartXTitle: "Posizio horizontala x(t)",
@@ -783,7 +792,7 @@ const translations = {
     canvasMoveAndMark: "Egin klik objektuan fotograma ikusgaian markatzeko.",
     canvasMoveAndClick: "Egin klik objektuan fotograma ikusgaian markatzeko.",
     canvasManualActive: "Eskuzko modua aktibo: erreproduzitu eta egin klik objektuan posizio bakoitza gordetzeko.",
-    canvasCalibrationReady: "Markatu distantzia ezagun batez bereizitako bi puntu.",
+    canvasCalibrationReady: "Egin klik {distance} m neurtzen duen objektu baten mutur bakoitzean.",
     canvasScaleReady: "Eskala kalibratuta. Orain markatu jarraitu beharreko objektua.",
     canvasTrackingInProgress: "Jarraipena martxan...",
     canvasTrackingDone: "Jarraipena amaituta.",
@@ -800,8 +809,9 @@ const translations = {
     selectionManualPoints: "Eskuzko modua: {count} puntu gordeta.",
     selectionManualFinished: "Eskuzko modua {count} punturekin amaitu da.",
     selectionManualOffNoPoint: "Eskuzko modua desaktibatuta. Oraindik ez dago punturik hautatuta.",
-    selectionCalibrationActive: "Kalibrazioa aktibo: markatu 2 erreferentzia-puntu {unit} unitatetan.",
+    selectionCalibrationActive: "Kalibrazioa aktibo: egin klik {distance} m neurtzen duen objektu baten mutur bakoitzean.",
     selectionCalibrationHalf: "Kalibrazioa aktibo: lehen puntua markatuta dago, bigarrena falta da.",
+    selectionCalibrationReady: "Kalibrazio-puntuak markatuta daude. Sakatu Aplikatu eskala kalibratzeko.",
     selectionScaleReady: "Eskala kalibratuta. Orain markatu jarraitu beharreko objektua.",
     selectionTrackingInProgress: "Jarraipena martxan.",
     selectionTrackingDone: "Jarraipena {count} punturekin amaitu da.",
@@ -818,7 +828,9 @@ const translations = {
     statusManualPointSaved: "Eskuzko puntua gorde da t={time} unean.",
     statusCalibrateMoveVideo: "Lehenengo jarri bideoa kalibratu nahi duzun unean.",
     statusScaleDistancePositive: "Erreferentziako benetako distantziak 0 baino handiagoa izan behar du.",
-    statusCalibrationOn: "Kalibrazioa aktibatuta. Markatu {distance} {unit} tartearekin bereizitako bi puntu.",
+    statusCalibrationOn: "Egin klik {distance} m neurtzen duen objektu baten mutur bakoitzean eskala kalibratzeko.",
+    statusCalibrationCancelled: "Kalibrazioa bertan behera utzi da.",
+    statusCalibrationReady: "Kalibrazio-puntuak markatuta daude. Sakatu Aplikatu eskala kalibratzeko.",
     statusMarkPointFirst: "Lehenengo markatu behar duzu jarraitu beharreko puntua.",
     statusProcessingSamples: "{start} eta {end} artean {count} lagin prozesatzen...",
     statusProcessingSample: "{count}tik {index}. lagina prozesatzen...",
@@ -893,20 +905,20 @@ const translations = {
     orientationHorizontal: "Automatic horizontal",
     orientationVerticalCw: "Vertical rotated to the right",
     orientationVerticalCcw: "Vertical rotated to the left",
-    flipHorizontalLabel: "Horizontal flip so motion goes from left to right",
+    flipHorizontalLabel: "Horizontal flip",
     flipHorizontalFieldHelp: "Flips the image horizontally so the motion appears toward the right.",
     flipVerticalLabel: "Vertical flip",
     flipVerticalFieldHelp: "Flips the image upside down if the video is inverted.",
     scaleDistanceLabel: "Real reference distance",
     scaleDistanceFieldHelp: "This is the real distance between the two points you will use to calibrate the scale.",
-    scaleUnitTextLabel: "Spatial unit",
-    scaleUnitTextFieldHelp: "Write the unit you want to use, for example m, cm or px if you do not calibrate.",
+    calibrationEditorHint: "Set the real distance in meters before marking the two points.",
+    calibrationApply: "Apply",
     helpTitle: "How to use it",
     helpStep1: "Load a video recorded on your phone or downloaded.",
     helpStep2: "Adjust the start and end instants, speed, and orientation if needed.",
-    helpStep3: "Use <strong>horizontal flip</strong> if you want the motion to go from left to right.",
+    helpStep3: "Use <strong>horizontal flip</strong> if needed.",
     helpStep4: "Move through the video with the bar and leave visible the instant you want to analyze.",
-    helpStep5: "Optionally, click <strong>Calibrate scale</strong> and mark two points separated by a known distance.",
+    helpStep5: "Optionally, click <strong>Calibrate scale</strong>, enter the real distance in meters, click <strong>Apply</strong>, and mark two points separated by that known distance.",
     helpStep6: "For automatic tracking, click on the mass or ball and then click <strong>Start tracking</strong>.",
     helpStep7: "If automatic tracking fails, enable <strong>Manual mode</strong>, play the clip, and keep clicking on the object to draw the path.",
     helpStep8: "Analyze the graphs, enable the option to show the theoretical fit if you want, and export the data. Coordinates are expressed relative to the first tracked point.",
@@ -914,8 +926,6 @@ const translations = {
     selectionStatusLabel: "Status:",
     playerPlayAria: "Play",
     playerPauseAria: "Pause",
-    setStart: "Set start here",
-    setEnd: "Set end here",
     jumpStart: "Go to start",
     jumpEnd: "Go to end",
     reset: "Reset",
@@ -931,9 +941,11 @@ const translations = {
     manualModeExit: "Exit manual",
     manualModeHelp: "Lets you mark the object's position by hand at different instants if automatic tracking fails.",
     calibrateScale: "Calibrate scale",
+    calibrateScaleCancel: "Cancel calibration",
     calibrateScaleHelp: "Tells the program how long a real distance is so it can convert pixels into units such as meters.",
     startTracking: "Start tracking",
     startTrackingHelp: "Makes the program automatically follow the object from the marked point and calculate its path.",
+    startTrackingDisabledHint: "First click the object in the video that you want to track.",
     statusSelectVideo: "Select a video to begin.",
     chartsTitle: "3. Graphs",
     chartXTitle: "Horizontal position x(t)",
@@ -982,7 +994,7 @@ const translations = {
     canvasMoveAndMark: "Click on the object to mark it on the visible frame.",
     canvasMoveAndClick: "Click on the object to mark it on the visible frame.",
     canvasManualActive: "Manual mode active: play and click on the object to save each position.",
-    canvasCalibrationReady: "Mark two points separated by a known distance.",
+    canvasCalibrationReady: "Click each end of an object that measures {distance} m.",
     canvasScaleReady: "Scale calibrated. Now mark the object to track.",
     canvasTrackingInProgress: "Tracking in progress...",
     canvasTrackingDone: "Tracking completed.",
@@ -999,8 +1011,9 @@ const translations = {
     selectionManualPoints: "Manual mode: {count} saved points.",
     selectionManualFinished: "Manual mode finished with {count} points.",
     selectionManualOffNoPoint: "Manual mode disabled. No point has been selected yet.",
-    selectionCalibrationActive: "Calibration active: mark 2 reference points in {unit}.",
+    selectionCalibrationActive: "Calibration active: click each end of an object that measures {distance} m.",
     selectionCalibrationHalf: "Calibration active: first point marked, second one still missing.",
+    selectionCalibrationReady: "Calibration points marked. Click Apply to calibrate the scale.",
     selectionScaleReady: "Scale calibrated. You can now mark the object to track.",
     selectionTrackingInProgress: "Tracking in progress.",
     selectionTrackingDone: "Tracking completed with {count} points.",
@@ -1017,7 +1030,9 @@ const translations = {
     statusManualPointSaved: "Manual point saved at t={time}.",
     statusCalibrateMoveVideo: "First move the video to the instant you want to calibrate.",
     statusScaleDistancePositive: "The real reference distance must be greater than 0.",
-    statusCalibrationOn: "Calibration enabled. Mark two points separated by {distance} {unit}.",
+    statusCalibrationOn: "Click each end of an object that measures {distance} m to calibrate the scale.",
+    statusCalibrationCancelled: "Calibration cancelled.",
+    statusCalibrationReady: "Calibration points marked. Click Apply to calibrate the scale.",
     statusMarkPointFirst: "You must first mark the point to track.",
     statusProcessingSamples: "Processing {count} samples between {start} and {end}...",
     statusProcessingSample: "Processing sample {index} of {count}...",
@@ -1079,6 +1094,7 @@ let pendingTimelineSeek = null;
 let timelineSeekInFlight = false;
 let hideTimelineMarker = false;
 let detectedVideoFrameRate = null;
+let viewerToolsOpen = false;
 
 function formatTime(value) {
   return `${formatNumber(value, 2)} s`;
@@ -1256,15 +1272,14 @@ function renderStaticTexts() {
   setHeadingWithInfo("searchRadiusLabel", "searchRadiusLabel", "searchRadiusFieldHelp");
   setHeadingWithInfo("startTimeLabel", "startTimeLabel", "startTimeFieldHelp");
   setHeadingWithInfo("endTimeLabel", "endTimeLabel", "endTimeFieldHelp");
-  setHeadingWithInfo("orientationLabel", "orientationLabel", "orientationFieldHelp");
+  setText("orientationToggleBtn", "orientationLabel");
+  document.getElementById("orientationInfo").innerHTML = buildInfoButton("orientationFieldHelp");
   setText("orientationOriginal", "orientationOriginal");
   setText("orientationHorizontal", "orientationHorizontal");
   setText("orientationVerticalCw", "orientationVerticalCw");
   setText("orientationVerticalCcw", "orientationVerticalCcw");
   setHeadingWithInfo("flipHorizontalLabel", "flipHorizontalLabel", "flipHorizontalFieldHelp");
   setHeadingWithInfo("flipVerticalLabel", "flipVerticalLabel", "flipVerticalFieldHelp");
-  setHeadingWithInfo("scaleDistanceLabel", "scaleDistanceLabel", "scaleDistanceFieldHelp");
-  setHeadingWithInfo("scaleUnitTextLabel", "scaleUnitTextLabel", "scaleUnitTextFieldHelp");
   setText("helpTitle", "helpTitle");
   setHtml("helpStep1", "helpStep1");
   setHtml("helpStep2", "helpStep2");
@@ -1275,8 +1290,6 @@ function renderStaticTexts() {
   setHtml("helpStep7", "helpStep7");
   setHtml("helpStep8", "helpStep8");
   setText("viewerTitle", "viewerTitle");
-  setText("setStartBtn", "setStart");
-  setText("setEndBtn", "setEnd");
   setText("jumpStartBtn", "jumpStart");
   setText("jumpEndBtn", "jumpEnd");
   setText("resetBtn", "reset");
@@ -1286,11 +1299,14 @@ function renderStaticTexts() {
   setHtml("legendTarget", "legendTarget");
   setHtml("legendPath", "legendPath");
   setHtml("legendFit", "legendFit");
-  document.getElementById("manualModeHeading").innerHTML = buildHeadingWithInfo("manualMode", "manualModeHelp");
-  document.getElementById("calibrateHeading").innerHTML = buildHeadingWithInfo("calibrateScale", "calibrateScaleHelp");
-  document.getElementById("trackHeading").innerHTML = buildHeadingWithInfo("startTracking", "startTrackingHelp");
-  setText("calibrateBtn", "calibrateScale");
+  document.getElementById("manualModeInfo").innerHTML = buildInfoButton("manualModeHelp");
+  document.getElementById("calibrateInfo").innerHTML = buildInfoButton("calibrateScaleHelp");
+  document.getElementById("trackInfo").innerHTML = buildInfoButton("startTrackingHelp");
+  setText("calibrationEditorHint", "calibrationEditorHint");
+  setHeadingWithInfo("scaleDistanceLabel", "scaleDistanceLabel", "scaleDistanceFieldHelp");
+  setText("applyCalibrationBtn", "calibrationApply");
   setText("trackBtn", "startTracking");
+  syncTrackButtonTooltip();
   setText("chartsTitle", "chartsTitle");
   setText("fitToggleLabel", "fitToggleLabel");
   setText("fitToggleHint", trackerState.theoreticalFit ? "fitToggleHint" : "fitUnavailableHint");
@@ -1305,6 +1321,8 @@ function renderStaticTexts() {
   setText("resultsTitle", "resultsTitle");
   setText("exportBtn", "exportCsv");
   setHtml("footerText", "footerText");
+  syncCalibrationUI();
+  syncViewerToolsUI();
 }
 
 function formatFrameRateValue(value) {
@@ -1394,6 +1412,7 @@ function createInitialState() {
     isTracking: false,
     isPreviewing: false,
     isCalibrating: false,
+    calibrationEditorOpen: false,
     readyForSelection: false,
     calibrationPoints: [],
     scale: {
@@ -1427,8 +1446,24 @@ function getDistance(pointA, pointB) {
   return Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
 }
 
-function getSpatialUnit() {
-  return scaleUnitInput.value.trim() || "m";
+function syncCalibrationUI() {
+  calibrationEditor.hidden = !trackerState.calibrationEditorOpen;
+  calibrateBtn.textContent = trackerState.isCalibrating ? t("calibrateScaleCancel") : t("calibrateScale");
+  applyCalibrationBtn.disabled = trackerState.calibrationPoints.length !== 2;
+}
+
+function syncTrackButtonTooltip() {
+  const tooltip = trackBtn.disabled ? t("startTrackingDisabledHint") : "";
+  trackBtn.title = tooltip;
+  if (trackBtn.parentElement) {
+    trackBtn.parentElement.title = tooltip;
+  }
+  trackBtn.setAttribute("aria-label", tooltip || t("startTracking"));
+}
+
+function syncViewerToolsUI() {
+  viewerTools.hidden = !viewerToolsOpen;
+  orientationToggleBtn.setAttribute("aria-expanded", viewerToolsOpen ? "true" : "false");
 }
 
 function getRotationDegrees() {
@@ -1799,6 +1834,19 @@ function buildHeadingWithInfo(titleKey, helpKey) {
   `;
 }
 
+function buildInfoButton(helpKey) {
+  return `
+    <button
+      type="button"
+      class="info-button"
+      data-tooltip-key="${helpKey}"
+      aria-label="${t("infoTooltipLabel")}"
+      aria-expanded="false"
+    >?</button>
+    <span class="info-tooltip" hidden>${t(helpKey)}</span>
+  `;
+}
+
 function setHeadingWithInfo(id, titleKey, helpKey) {
   const element = document.getElementById(id);
   if (element) {
@@ -1937,12 +1985,12 @@ function resetState(keepVideo = true) {
   trackerState = createInitialState();
   detectedVideoFrameRate = null;
   trackBtn.disabled = true;
+  syncTrackButtonTooltip();
   manualModeBtn.disabled = !keepVideo;
   manualModeBtn.classList.remove("button--active");
   manualModeBtn.textContent = t("manualMode");
   calibrateBtn.disabled = !keepVideo;
-  setStartBtn.disabled = !keepVideo;
-  setEndBtn.disabled = !keepVideo;
+  calibrationEditor.hidden = true;
   exportBtn.disabled = true;
   setCanvasHintKey(keepVideo ? "canvasMoveAndClick" : "canvasSelectVideo");
   selectionToast.hidden = true;
@@ -1950,6 +1998,7 @@ function resetState(keepVideo = true) {
   setSelectionStatusKey("selectionNoPoint");
   rebuildResultsView();
   syncTimelineControls();
+  syncCalibrationUI();
   updateSampleRateRecommendation();
   clearCanvasMessage(keepVideo ? "canvasMoveAndMark" : "statusSelectVideo");
 }
@@ -2481,8 +2530,6 @@ function syncTimelineControls() {
   playPauseBtn.classList.toggle("player-bar__toggle--play", !trackerState.isPreviewing);
   playPauseBtn.classList.toggle("player-bar__toggle--pause", trackerState.isPreviewing);
   playPauseBtn.setAttribute("aria-label", trackerState.isPreviewing ? t("playerPauseAria") : t("playerPlayAria"));
-  setStartBtn.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
-  setEndBtn.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
   jumpStartBtn.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
   jumpEndBtn.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
   manualModeBtn.disabled = !hasVideo || trackerState.isTracking;
@@ -2493,6 +2540,7 @@ function syncTimelineControls() {
   timelineCurrentLabel.textContent = formatTime(currentTime);
   timelineStartLabel.textContent = t("timelineStart", { time: formatTime(startTime) });
   timelineEndLabel.textContent = t("timelineEnd", { time: formatTime(endTime) });
+  syncTrackButtonTooltip();
 }
 
 async function seekAndRender(time, point = getDisplayedPointAtTime(time)) {
@@ -2821,11 +2869,14 @@ function clearTrackingSelection(resetScale = true) {
   trackerState.samples = [];
   trackerState.calibrationPoints = [];
   trackerState.isCalibrating = false;
+  trackerState.calibrationEditorOpen = false;
   if (resetScale) {
     trackerState.scale.pixelsPerUnit = null;
   }
   rebuildResultsView();
   trackBtn.disabled = true;
+  syncTrackButtonTooltip();
+  syncCalibrationUI();
 }
 
 function enterManualMode() {
@@ -2887,31 +2938,113 @@ function addManualSample(point) {
   setStatusKey("statusManualPointSaved", { time: formatTime(sample.t) });
 }
 
+function openCalibrationEditor() {
+  stopPreview();
+  scaleDistanceInput.value = String(trackerState.scale.distance || 1);
+  trackerState.calibrationPoints = [];
+  trackerState.isCalibrating = true;
+  trackerState.calibrationEditorOpen = true;
+  trackBtn.disabled = true;
+  syncTrackButtonTooltip();
+  syncCalibrationUI();
+  const distanceLabel = formatNumber(Number.parseFloat(scaleDistanceInput.value) || trackerState.scale.distance || 1, 3);
+  setCanvasHintKey("canvasCalibrationReady", { distance: distanceLabel });
+  setSelectionStatusKey("selectionCalibrationActive", { distance: distanceLabel });
+  setStatusKey("statusCalibrationOn", { distance: distanceLabel });
+  drawFrame();
+}
+
+function closeCalibrationEditor() {
+  trackerState.calibrationEditorOpen = false;
+  syncCalibrationUI();
+}
+
+function cancelCalibration() {
+  trackerState.isCalibrating = false;
+  trackerState.calibrationPoints = [];
+  closeCalibrationEditor();
+  trackBtn.disabled = !trackerState.referencePatch;
+  syncTrackButtonTooltip();
+  redrawCurrentState();
+  syncTimelineControls();
+}
+
 function startCalibration() {
+  if (trackerState.isCalibrating) {
+    cancelCalibration();
+    setCanvasHintKey("canvasMoveAndClick");
+    setSelectionStatusKey(trackerState.selectedPoint ? "selectionPointReady" : "selectionVideoLoaded");
+    setStatusKey("statusCalibrationCancelled");
+    return;
+  }
+
+  if (!trackerState.readyForSelection) {
+    setStatusKey("statusCalibrateMoveVideo", {}, true);
+    return;
+  }
+
+  if (trackerState.calibrationEditorOpen) {
+    closeCalibrationEditor();
+    trackerState.isCalibrating = false;
+    trackerState.calibrationPoints = [];
+    syncCalibrationUI();
+    return;
+  }
+
+  openCalibrationEditor();
+}
+
+function applyCalibrationSettings() {
   if (!trackerState.readyForSelection) {
     setStatusKey("statusCalibrateMoveVideo", {}, true);
     return;
   }
 
   const distance = Number.parseFloat(scaleDistanceInput.value);
-  const unit = getSpatialUnit();
 
   if (!Number.isFinite(distance) || distance <= 0) {
     setStatusKey("statusScaleDistancePositive", {}, true);
     return;
   }
 
+  if (trackerState.calibrationPoints.length !== 2) {
+    return;
+  }
+
+  const [pointA, pointB] = trackerState.calibrationPoints;
+  const pixelDistance = getDistance(pointA, pointB);
+
+  if (pixelDistance <= 0) {
+    trackerState.calibrationPoints = [];
+    syncCalibrationUI();
+    setStatusKey("statusScaleInvalid", {}, true);
+    drawFrame();
+    return;
+  }
+
   stopPreview();
-  trackerState.isCalibrating = true;
-  trackerState.calibrationPoints = [];
   trackerState.scale.distance = distance;
-  trackerState.scale.unit = unit;
-  scaleUnitLabel.textContent = unit;
+  trackerState.scale.unit = "m";
+  trackerState.scale.pixelsPerUnit = pixelDistance / trackerState.scale.distance;
+  trackerState.isCalibrating = false;
+  trackerState.calibrationPoints = [];
   trackBtn.disabled = true;
-  setCanvasHintKey("canvasCalibrationReady");
-  setSelectionStatusKey("selectionCalibrationActive", { unit: trackerState.scale.unit });
+  syncTrackButtonTooltip();
+  closeCalibrationEditor();
+  syncCalibrationUI();
+  rebuildResultsView();
   drawFrame();
-  setStatusKey("statusCalibrationOn", { distance: formatNumber(distance, 3), unit });
+  setCanvasHintKey("canvasScaleReady");
+  setSelectionStatusKey("selectionScaleReady");
+  showSelectionToastKey("toastScaleCalibrated");
+  setStatusKey("statusScaleCalibrated", {
+    value: formatNumber(trackerState.scale.pixelsPerUnit, 3),
+    unit: trackerState.scale.unit
+  });
+  if (trackerState.selectedPoint) {
+    trackBtn.disabled = false;
+    syncTrackButtonTooltip();
+  }
 }
 
 async function startTracking() {
@@ -2948,15 +3081,16 @@ async function startTracking() {
   trackerState.isTracking = true;
   trackerState.manualMode = false;
   trackerState.isCalibrating = false;
+  trackerState.calibrationEditorOpen = false;
   trackerState.calibrationPoints = [];
   trackerState.samples = [{ t: start, x: currentPoint.x, y: currentPoint.y }];
   trackerState.originPoint = { x: currentPoint.x, y: currentPoint.y };
   trackerState.selectedPoint = { x: currentPoint.x, y: currentPoint.y };
   trackBtn.disabled = true;
+  syncTrackButtonTooltip();
   calibrateBtn.disabled = true;
-  setStartBtn.disabled = true;
-  setEndBtn.disabled = true;
   exportBtn.disabled = true;
+  syncCalibrationUI();
   resetChartsAndTable();
   setCanvasHintKey("canvasTrackingInProgress");
   setSelectionStatusKey("selectionTrackingInProgress");
@@ -3021,8 +3155,6 @@ async function startTracking() {
     rebuildResultsView();
     drawFrame(currentPoint);
     calibrateBtn.disabled = false;
-    setStartBtn.disabled = false;
-    setEndBtn.disabled = false;
     setCanvasHintKey("canvasTrackingDone");
     setSelectionStatusKey("selectionTrackingDone", { count: trackerState.samples.length });
     setStatusKey("statusTrackingDone", { count: trackerState.samples.length });
@@ -3031,9 +3163,8 @@ async function startTracking() {
   } finally {
     trackerState.isTracking = false;
     trackBtn.disabled = false;
+    syncTrackButtonTooltip();
     calibrateBtn.disabled = false;
-    setStartBtn.disabled = false;
-    setEndBtn.disabled = false;
     syncTimelineControls();
   }
 }
@@ -3146,11 +3277,10 @@ videoInput.addEventListener("change", async (event) => {
     startTimeInput.value = "0";
     endTimeInput.value = formatNumber(video.duration, 2);
     playbackRateInput.value = "1";
-    scaleUnitLabel.textContent = getSpatialUnit();
+    trackerState.scale.unit = "m";
+    syncCalibrationUI();
     manualModeBtn.disabled = false;
     calibrateBtn.disabled = false;
-    setStartBtn.disabled = false;
-    setEndBtn.disabled = false;
     await seekAndRender(0);
     syncTimelineControls();
     setCanvasHintKey("canvasVideoReady");
@@ -3205,8 +3335,6 @@ resetBtn.addEventListener("click", async () => {
     trackerState.manualMode = false;
     manualModeBtn.disabled = false;
     calibrateBtn.disabled = false;
-    setStartBtn.disabled = false;
-    setEndBtn.disabled = false;
     try {
       await seekAndRender(Number.parseFloat(startTimeInput.value) || 0);
       setCanvasHintKey("canvasAtStart");
@@ -3310,36 +3438,6 @@ timelineRange.addEventListener("input", async () => {
     setStatus(error.message, true);
   }
 });
-setStartBtn.addEventListener("click", () => {
-  const duration = Number.isFinite(video.duration) ? video.duration : 0;
-  const rawTime = clamp(video.currentTime || 0, 0, duration);
-  const currentEnd = Number.parseFloat(endTimeInput.value) || duration;
-  const nextStart = Math.min(rawTime, Math.max(currentEnd - 0.01, 0));
-  startTimeInput.value = formatNumber(nextStart, 2);
-  if (currentEnd <= nextStart) {
-    endTimeInput.value = formatNumber(clamp(nextStart + 0.1, 0, duration), 2);
-  }
-  syncTimelineControls();
-  setStatusKey("statusStartFixed", { time: formatTime(Number.parseFloat(startTimeInput.value) || 0) });
-});
-setEndBtn.addEventListener("click", async () => {
-  const duration = Number.isFinite(video.duration) ? video.duration : 0;
-  const rawTime = clamp(video.currentTime || 0, 0, duration);
-  const currentStart = Number.parseFloat(startTimeInput.value) || 0;
-  const nextEnd = Math.max(rawTime, Math.min(currentStart + 0.01, duration));
-  endTimeInput.value = formatNumber(nextEnd, 2);
-  if (nextEnd <= currentStart) {
-    startTimeInput.value = formatNumber(clamp(nextEnd - 0.1, 0, duration), 2);
-  }
-  try {
-    await seekAndRender(Number.parseFloat(startTimeInput.value) || 0);
-    setCanvasHintKey("canvasAtStart");
-    setStatusKey("statusEndFixed", { time: formatTime(Number.parseFloat(endTimeInput.value) || 0) });
-  } catch (error) {
-    syncTimelineControls();
-    setStatus(error.message, true);
-  }
-});
 jumpStartBtn.addEventListener("click", async () => {
   if (!video.src || trackerState.isTracking) {
     return;
@@ -3375,38 +3473,11 @@ languageSelect.addEventListener("change", (event) => {
   applyLanguage(event.target.value || "auto");
 });
 
-scaleUnitInput.addEventListener("input", () => {
-  const unit = getSpatialUnit();
-  scaleUnitLabel.textContent = unit;
-  trackerState.scale.unit = unit;
-  if (trackerState.samples.length) {
-    rebuildResultsView();
-    redrawCurrentState();
-  }
-});
-scaleDistanceInput.addEventListener("input", () => {
-  const distance = Number.parseFloat(scaleDistanceInput.value);
-
-  if (!Number.isFinite(distance) || distance <= 0) {
-    return;
-  }
-
-  trackerState.scale.distance = distance;
-
-  if (trackerState.calibrationPoints.length === 2) {
-    const [pointA, pointB] = trackerState.calibrationPoints;
-    const pixelDistance = getDistance(pointA, pointB);
-
-    if (pixelDistance > 0) {
-      trackerState.scale.pixelsPerUnit = pixelDistance / distance;
-      rebuildResultsView();
-      redrawCurrentState();
-      setStatusKey("statusScaleUpdated", {
-        value: formatNumber(trackerState.scale.pixelsPerUnit, 3),
-        unit: trackerState.scale.unit
-      });
-    }
-  }
+scaleDistanceInput.addEventListener("input", syncCalibrationUI);
+applyCalibrationBtn.addEventListener("click", applyCalibrationSettings);
+orientationToggleBtn.addEventListener("click", () => {
+  viewerToolsOpen = !viewerToolsOpen;
+  syncViewerToolsUI();
 });
 templateSizeInput.addEventListener("input", () => {
   if (trackerState.selectedPoint && !trackerState.samples.length && !trackerState.manualMode && !trackerState.isTracking) {
@@ -3453,6 +3524,10 @@ canvas.addEventListener("click", (event) => {
   const point = getCanvasPoint(event);
 
   if (trackerState.isCalibrating) {
+    if (trackerState.calibrationPoints.length === 2) {
+      trackerState.calibrationPoints = [];
+    }
+
     trackerState.calibrationPoints.push({
       x: Math.round(point.x),
       y: Math.round(point.y)
@@ -3464,26 +3539,16 @@ canvas.addEventListener("click", (event) => {
 
       if (pixelDistance <= 0) {
         trackerState.calibrationPoints = [];
-        trackerState.isCalibrating = false;
+        syncCalibrationUI();
         setStatusKey("statusScaleInvalid", {}, true);
         drawFrame();
         return;
       }
 
-      trackerState.scale.pixelsPerUnit = pixelDistance / trackerState.scale.distance;
-      trackerState.isCalibrating = false;
-      rebuildResultsView();
+      syncCalibrationUI();
       drawFrame();
-      setCanvasHintKey("canvasScaleReady");
-      setSelectionStatusKey("selectionScaleReady");
-      showSelectionToastKey("toastScaleCalibrated");
-      setStatusKey("statusScaleCalibrated", {
-        value: formatNumber(trackerState.scale.pixelsPerUnit, 3),
-        unit: trackerState.scale.unit
-      });
-      if (trackerState.selectedPoint) {
-        trackBtn.disabled = false;
-      }
+      setSelectionStatusKey("selectionCalibrationReady");
+      setStatusKey("statusCalibrationReady");
     } else {
       drawFrame();
       setSelectionStatusKey("selectionCalibrationHalf");
@@ -3523,6 +3588,7 @@ canvas.addEventListener("click", (event) => {
   trackerState.lastPatch = patch;
   drawFrame();
   trackBtn.disabled = false;
+  syncTrackButtonTooltip();
   setCanvasHintKey("canvasInitialPointReady");
   setSelectionStatusKey("selectionPointReady");
   showSelectionToastKey("toastPointMarked");

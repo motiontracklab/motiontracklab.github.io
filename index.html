@@ -95,39 +95,6 @@
         </div>
       </div>
 
-      <div class="field">
-        <span id="orientationLabel">Orientación del vídeo</span>
-        <select id="orientationMode">
-          <option id="orientationOriginal" value="original">Original</option>
-          <option id="orientationHorizontal" value="horizontal">Horizontal automática</option>
-          <option id="orientationVerticalCw" value="vertical-cw">Vertical girando a la derecha</option>
-          <option id="orientationVerticalCcw" value="vertical-ccw">Vertical girando a la izquierda</option>
-        </select>
-      </div>
-
-      <label class="checkbox-field">
-        <input id="flipHorizontal" type="checkbox">
-        <span id="flipHorizontalLabel">Flip horizontal para que el movimiento vaya de izquierda a derecha</span>
-      </label>
-
-      <label class="checkbox-field">
-        <input id="flipVertical" type="checkbox">
-        <span id="flipVerticalLabel">Flip vertical</span>
-      </label>
-
-      <div class="field">
-        <span id="scaleDistanceLabel">Distancia real de referencia</span>
-        <div class="inline-field">
-          <input id="scaleDistance" type="number" min="0.01" step="0.01" value="1">
-          <span id="scaleUnitLabel">m</span>
-        </div>
-      </div>
-
-      <label class="field">
-        <span id="scaleUnitTextLabel">Unidad espacial</span>
-        <input id="scaleUnit" type="text" value="m" maxlength="10" placeholder="m">
-      </label>
-
       <div id="usageHelp" class="help">
         <h3 id="helpTitle">Uso</h3>
         <ol>
@@ -166,11 +133,11 @@
             <div id="timelineCurrentLabel" class="player-bar__time">0.00 s</div>
           </div>
           <div class="player-actions">
-            <button id="setStartBtn" class="button button--subtle" type="button" disabled>Inicio aquí</button>
-            <button id="setEndBtn" class="button button--subtle" type="button" disabled>Fin aquí</button>
-            <button id="jumpStartBtn" class="button button--subtle" type="button" disabled>Ir al inicio</button>
-            <button id="jumpEndBtn" class="button button--subtle" type="button" disabled>Ir al fin</button>
-            <button id="resetBtn" class="button button--subtle" type="button">Reiniciar</button>
+            <div class="player-actions__group">
+              <button id="jumpStartBtn" class="button button--subtle" type="button" disabled>Ir al inicio</button>
+              <button id="jumpEndBtn" class="button button--subtle" type="button" disabled>Ir al fin</button>
+              <button id="resetBtn" class="button button--subtle" type="button">Reiniciar</button>
+            </div>
             <label class="player-speed" for="playbackRate">
               <span id="playbackRateLabel">Velocidad</span>
               <input id="playbackRate" type="number" min="0.01" max="3" step="0.01" value="1">
@@ -195,18 +162,59 @@
           </div>
         </div>
         <aside class="viewer-actions">
-          <div class="actions actions--viewer">
-            <div id="manualModeControl" class="action-control">
-              <div id="manualModeHeading"></div>
-              <button id="manualModeBtn" type="button" disabled>Modo manual</button>
+          <div id="orientationControl" class="action-control">
+            <div class="action-control__row">
+              <button id="orientationToggleBtn" type="button" aria-expanded="false">Orientación del vídeo</button>
+              <div id="orientationInfo"></div>
             </div>
+            <div id="viewerTools" class="viewer-tools" hidden>
+              <div class="field viewer-tools__field">
+                <select id="orientationMode">
+                  <option id="orientationOriginal" value="original">Original</option>
+                  <option id="orientationHorizontal" value="horizontal">Horizontal automática</option>
+                  <option id="orientationVerticalCw" value="vertical-cw">Vertical girando a la derecha</option>
+                  <option id="orientationVerticalCcw" value="vertical-ccw">Vertical girando a la izquierda</option>
+                </select>
+              </div>
+              <label class="checkbox-field checkbox-field--compact viewer-tools__check">
+                <input id="flipHorizontal" type="checkbox">
+                <span id="flipHorizontalLabel">Flip horizontal</span>
+              </label>
+              <label class="checkbox-field checkbox-field--compact viewer-tools__check">
+                <input id="flipVertical" type="checkbox">
+                <span id="flipVerticalLabel">Flip vertical</span>
+              </label>
+            </div>
+          </div>
+          <div class="actions actions--viewer">
             <div id="calibrateControl" class="action-control">
-              <div id="calibrateHeading"></div>
-              <button id="calibrateBtn" type="button" disabled>Calibrar escala</button>
+              <div class="action-control__row">
+                <button id="calibrateBtn" type="button" disabled>Calibrar escala</button>
+                <div id="calibrateInfo"></div>
+              </div>
+              <div id="calibrationEditor" class="calibration-editor" hidden>
+                <p id="calibrationEditorHint" class="calibration-editor__hint">Define la distancia real en metros antes de marcar los dos puntos.</p>
+                <label class="field calibration-editor__field">
+                  <span id="scaleDistanceLabel">Distancia real de referencia</span>
+                  <div class="calibration-editor__row">
+                    <input id="scaleDistance" type="number" min="0.01" step="0.01" value="1">
+                    <span>m</span>
+                    <button id="applyCalibrationBtn" class="button button--subtle calibration-editor__apply" type="button">Aplicar</button>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div id="manualModeControl" class="action-control">
+              <div class="action-control__row">
+                <button id="manualModeBtn" type="button" disabled>Modo manual</button>
+                <div id="manualModeInfo"></div>
+              </div>
             </div>
             <div id="trackControl" class="action-control">
-              <div id="trackHeading"></div>
-              <button id="trackBtn" type="button" disabled>Iniciar seguimiento</button>
+              <div class="action-control__row">
+                <button id="trackBtn" type="button" disabled>Iniciar seguimiento</button>
+                <div id="trackInfo"></div>
+              </div>
             </div>
           </div>
           <div id="status" class="status">Selecciona un vídeo para empezar.</div>
