@@ -79,19 +79,21 @@
         </div>
       </div>
 
-      <div class="field">
-        <span id="startTimeLabel">Inicio del análisis</span>
-        <div class="inline-field">
-          <input id="startTime" type="number" min="0" step="0.1" value="0">
-          <span>s</span>
+      <div class="time-range-fields">
+        <div class="field field--compact">
+          <span id="startTimeLabel">Inicio del análisis</span>
+          <div class="inline-field inline-field--compact">
+            <input id="startTime" type="number" min="0" step="0.01" value="0">
+            <span>s</span>
+          </div>
         </div>
-      </div>
 
-      <div class="field">
-        <span id="endTimeLabel">Fin del análisis</span>
-        <div class="inline-field">
-          <input id="endTime" type="number" min="0" step="0.1" value="0">
-          <span>s</span>
+        <div class="field field--compact">
+          <span id="endTimeLabel">Fin del análisis</span>
+          <div class="inline-field inline-field--compact">
+            <input id="endTime" type="number" min="0" step="0.01" value="0">
+            <span>s</span>
+          </div>
         </div>
       </div>
 
@@ -144,10 +146,6 @@
               <input id="playbackRate" type="number" min="0.01" max="3" step="0.01" value="1">
               <span>x</span>
             </label>
-          </div>
-          <div class="timeline-markers">
-            <span id="timelineStartLabel">Inicio: 0.00 s</span>
-            <span id="timelineEndLabel">Fin: 0.00 s</span>
           </div>
           <div class="legend">
             <span id="legendTarget"><i class="dot dot--target"></i>Punto seguido</span>

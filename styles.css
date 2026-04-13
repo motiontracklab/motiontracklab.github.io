@@ -280,6 +280,26 @@ select {
   align-items: center;
 }
 
+.inline-field--compact {
+  grid-template-columns: minmax(0, 5.5rem) auto;
+  gap: 0.45rem;
+}
+
+.inline-field--compact input {
+  min-width: 0;
+  padding: 0.7rem 0.75rem;
+}
+
+.time-range-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.field--compact {
+  min-width: 0;
+}
+
 .actions {
   display: grid;
   gap: 0.7rem;
@@ -453,8 +473,7 @@ select {
 }
 
 .player-bar,
-.player-actions,
-.timeline-markers {
+.player-actions {
   display: flex;
   gap: 0.75rem;
   align-items: center;
@@ -683,15 +702,6 @@ select {
   border-radius: 50%;
   background: var(--surface-strong);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
-}
-
-.timeline-markers {
-  margin-top: 0.45rem;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  color: var(--muted);
-  font-size: 0.94rem;
-  font-variant-numeric: tabular-nums;
 }
 
 .timeline-help {
@@ -1086,9 +1096,13 @@ tbody tr:nth-child(even) {
     grid-template-columns: 1fr;
   }
 
+  .time-range-fields {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
   .player-bar,
-  .player-actions,
-  .timeline-markers {
+  .player-actions {
     flex-direction: column;
     align-items: stretch;
   }

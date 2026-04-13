@@ -12,8 +12,6 @@ const timelineEndHandle = document.getElementById("timelineEndHandle");
 const jumpStartBtn = document.getElementById("jumpStartBtn");
 const jumpEndBtn = document.getElementById("jumpEndBtn");
 const timelineCurrentLabel = document.getElementById("timelineCurrentLabel");
-const timelineStartLabel = document.getElementById("timelineStartLabel");
-const timelineEndLabel = document.getElementById("timelineEndLabel");
 const themeToggleBtn = document.getElementById("themeToggle");
 const themeToggleLabel = document.getElementById("themeToggleLabel");
 const languageSelect = document.getElementById("languageSelect");
@@ -1729,6 +1727,32 @@ function computeTheoreticalFit() {
     };
   });
 
+  let visibleStart = 0;
+  if (xCoefficients[0] < 0) {
+    if (xCoefficients[1] > 1e-10) {
+      visibleStart = clamp(-xCoefficients[0] / xCoefficients[1], 0, duration);
+    } else {
+      visibleStart = duration + 1;
+    }
+  }
+
+  const visiblePredictions = predictions.map((sample) => (
+    sample.tRelative < visibleStart ? null : sample
+  ));
+  const visibleVelocityPredictions = velocityPredictions.map((sample, index) => (
+    points[index + 1].tRelative < visibleStart ? null : sample
+  ));
+  const visibleDensePredictions = densePredictions.filter((sample) => sample.tRelative >= visibleStart);
+
+  if (visibleStart > 0 && visibleStart <= duration) {
+    visibleDensePredictions.unshift({
+      tRelative: visibleStart,
+      tAbsolute: firstTime + visibleStart,
+      x: 0,
+      y: evaluatePolynomial(yCoefficients, visibleStart)
+    });
+  }
+
   const errors = predictions.map((prediction, index) => {
     const point = points[index];
     const dx = point.x - prediction.x;
@@ -1743,8 +1767,11 @@ function computeTheoreticalFit() {
     xCoefficients,
     yCoefficients,
     predictions,
+    visiblePredictions,
     densePredictions,
+    visibleDensePredictions,
     velocityPredictions,
+    visibleVelocityPredictions,
     vx0: xCoefficients[1],
     vy0: yCoefficients[1],
     g: -2 * yCoefficients[2],
@@ -2050,7 +2077,7 @@ function drawFrame(point = (hideTimelineMarker ? null : getDisplayedPointAtTime(
 
   drawTransformedVideo(ctx);
 
-  if (trackerState.showTheoreticalFit && trackerState.theoreticalFit?.densePredictions.length) {
+  if (trackerState.showTheoreticalFit && trackerState.theoreticalFit?.visibleDensePredictions.length) {
     ctx.save();
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -2058,7 +2085,7 @@ function drawFrame(point = (hideTimelineMarker ? null : getDisplayedPointAtTime(
     ctx.lineWidth = 6.5;
     ctx.setLineDash([12, 8]);
     ctx.beginPath();
-    trackerState.theoreticalFit.densePredictions.forEach((sample, index) => {
+    trackerState.theoreticalFit.visibleDensePredictions.forEach((sample, index) => {
       const x = fromPhysicalX(sample.x);
       const y = fromPhysicalY(sample.y);
       if (index === 0) {
@@ -2488,6 +2515,27 @@ function updateDraggedBoundaryFromPointer(clientX) {
   });
 }
 
+function handleAnalysisTimeInput(boundary) {
+  syncTimelineControls();
+
+  if (!video.src || trackerState.isTracking) {
+    return;
+  }
+
+  const duration = Number.isFinite(video.duration) ? video.duration : 0;
+  const rawValue = boundary === "start"
+    ? Number.parseFloat(startTimeInput.value)
+    : Number.parseFloat(endTimeInput.value);
+  const fallback = boundary === "start" ? 0 : duration;
+  const targetTime = clamp(Number.isFinite(rawValue) ? rawValue : fallback, 0, duration);
+
+  stopPreview(false);
+  timelineCurrentLabel.textContent = formatTime(targetTime);
+  queueTimelineSeek(targetTime).catch((error) => {
+    setStatus(error.message, true);
+  });
+}
+
 function finishTimelineBoundaryDrag() {
   activeTimelineBoundary = null;
   hideTimelineMarker = false;
@@ -2551,8 +2599,6 @@ function syncTimelineControls() {
   timelineStartHandle.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
   timelineEndHandle.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
   timelineCurrentLabel.textContent = formatTime(currentTime);
-  timelineStartLabel.textContent = t("timelineStart", { time: formatTime(startTime) });
-  timelineEndLabel.textContent = t("timelineEnd", { time: formatTime(endTime) });
   syncTrackButtonTooltip();
 }
 
@@ -2713,7 +2759,7 @@ function buildCharts() {
   if (fit) {
     xDatasets.push({
       label: t("fitAdjustedSeries"),
-      data: fit.predictions.map((sample) => sample.x),
+      data: fit.visiblePredictions.map((sample) => sample?.x ?? null),
       borderColor: FIT_COLOR,
       backgroundColor: "rgba(58, 120, 179, 0.12)",
       borderDash: [10, 6],
@@ -2722,7 +2768,7 @@ function buildCharts() {
     });
     yDatasets.push({
       label: t("fitAdjustedSeries"),
-      data: fit.predictions.map((sample) => sample.y),
+      data: fit.visiblePredictions.map((sample) => sample?.y ?? null),
       borderColor: FIT_COLOR,
       backgroundColor: "rgba(58, 120, 179, 0.12)",
       borderDash: [10, 6],
@@ -2731,7 +2777,7 @@ function buildCharts() {
     });
     vDatasets.push({
       label: t("fitAdjustedSeries"),
-      data: fit.velocityPredictions.map((point) => point.v),
+      data: fit.visibleVelocityPredictions.map((point) => point?.v ?? null),
       borderColor: FIT_COLOR,
       backgroundColor: "rgba(58, 120, 179, 0.12)",
       borderDash: [10, 6],
@@ -2740,7 +2786,7 @@ function buildCharts() {
     });
     xyDatasets.push({
       label: t("fitAdjustedSeries"),
-      data: fit.densePredictions.map((sample) => ({ x: sample.x, y: sample.y })),
+      data: fit.visibleDensePredictions.map((sample) => ({ x: sample.x, y: sample.y })),
       showLine: true,
       borderColor: FIT_COLOR,
       backgroundColor: "rgba(58, 120, 179, 0.12)",
@@ -3505,8 +3551,12 @@ templateSizeInput.addEventListener("input", () => {
 
   redrawCurrentState();
 });
-startTimeInput.addEventListener("input", syncTimelineControls);
-endTimeInput.addEventListener("input", syncTimelineControls);
+startTimeInput.addEventListener("input", () => {
+  handleAnalysisTimeInput("start");
+});
+endTimeInput.addEventListener("input", () => {
+  handleAnalysisTimeInput("end");
+});
 
 orientationSelect.addEventListener("change", refreshAfterTransformChange);
 flipHorizontalInput.addEventListener("change", refreshAfterTransformChange);
