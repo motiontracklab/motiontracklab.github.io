@@ -58,6 +58,7 @@ const LANGUAGE_STORAGE_KEY = "trayectoria-language";
 const SUPPORTED_LANGUAGES = ["es", "ca", "gl", "eu", "en"];
 const FIT_COLOR = "#3a78b3";
 const DEFAULT_MAX_SAMPLE_RATE = 60;
+const APP_VERSION = "0.1.0";
 
 const translations = {
   es: {
@@ -126,6 +127,7 @@ const translations = {
     timelineEndHandleAria: "Mover el fin del análisis",
     timelineStart: "Inicio: {time}",
     timelineEnd: "Fin: {time}",
+    timelineHelp: "Mueve los deslizadores para definir el tramo del vídeo que se analizará.",
     legendTarget: '<i class="dot dot--target"></i>Punto seguido',
     legendPath: '<i class="dot dot--path"></i>Trayectoria',
     legendFit: '<i class="dot dot--fit"></i>Ajuste teórico',
@@ -182,6 +184,7 @@ const translations = {
     resultsTitle: "Datos obtenidos",
     exportCsv: "Exportar CSV",
     footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Licencia <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Sugerencias y errores</a>.',
+    footerVersion: "Versión {version}",
     canvasSelectVideo: "Carga un vídeo y haz clic sobre el objeto.",
     canvasMoveAndMark: "Haz clic sobre el objeto para marcarlo en el fotograma visible.",
     canvasMoveAndClick: "Haz clic sobre el objeto para marcarlo en el fotograma visible.",
@@ -328,6 +331,7 @@ const translations = {
     timelineEndHandleAria: "Mou el final de l'anàlisi",
     timelineStart: "Inici: {time}",
     timelineEnd: "Final: {time}",
+    timelineHelp: "Mou els lliscadors per definir el tram del vídeo que s'analitzarà.",
     legendTarget: '<i class="dot dot--target"></i>Punt seguit',
     legendPath: '<i class="dot dot--path"></i>Trajectòria',
     legendFit: '<i class="dot dot--fit"></i>Ajust teòric',
@@ -384,6 +388,7 @@ const translations = {
     resultsTitle: "Dades obtingudes",
     exportCsv: "Exporta CSV",
     footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Llicència <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Suggeriments i errors</a>.',
+    footerVersion: "Versió {version}",
     canvasSelectVideo: "Carrega un vídeo i fes clic sobre l'objecte.",
     canvasMoveAndMark: "Fes clic sobre l'objecte per marcar-lo al fotograma visible.",
     canvasMoveAndClick: "Fes clic sobre l'objecte per marcar-lo al fotograma visible.",
@@ -530,6 +535,7 @@ const translations = {
     timelineEndHandleAria: "Mover o fin da análise",
     timelineStart: "Inicio: {time}",
     timelineEnd: "Fin: {time}",
+    timelineHelp: "Move os deslizadores para definir o tramo do vídeo que se analizará.",
     legendTarget: '<i class="dot dot--target"></i>Punto seguido',
     legendPath: '<i class="dot dot--path"></i>Traxectoria',
     legendFit: '<i class="dot dot--fit"></i>Ajuste teórico',
@@ -586,6 +592,7 @@ const translations = {
     resultsTitle: "Datos obtidos",
     exportCsv: "Exportar CSV",
     footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Licenza <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Suxestións e erros</a>.',
+    footerVersion: "Versión {version}",
     canvasSelectVideo: "Carga un vídeo e fai clic sobre o obxecto.",
     canvasMoveAndMark: "Fai clic sobre o obxecto para marcalo no fotograma visible.",
     canvasMoveAndClick: "Fai clic sobre o obxecto para marcalo no fotograma visible.",
@@ -732,6 +739,7 @@ const translations = {
     timelineEndHandleAria: "Mugitu analisiaren amaiera",
     timelineStart: "Hasiera: {time}",
     timelineEnd: "Amaiera: {time}",
+    timelineHelp: "Mugitu graduatzaileak analizatuko den bideo zatia zehazteko.",
     legendTarget: '<i class="dot dot--target"></i>Jarraitutako puntua',
     legendPath: '<i class="dot dot--path"></i>Ibilbidea',
     legendFit: '<i class="dot dot--fit"></i>Doikuntza teorikoa',
@@ -788,6 +796,7 @@ const translations = {
     resultsTitle: "Lortutako datuak",
     exportCsv: "CSV esportatu",
     footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a> lizentzia. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Iradokizunak eta erroreak</a>.',
+    footerVersion: "{version} bertsioa",
     canvasSelectVideo: "Kargatu bideo bat eta egin klik objektuaren gainean.",
     canvasMoveAndMark: "Egin klik objektuan fotograma ikusgaian markatzeko.",
     canvasMoveAndClick: "Egin klik objektuan fotograma ikusgaian markatzeko.",
@@ -934,6 +943,7 @@ const translations = {
     timelineEndHandleAria: "Move the analysis end",
     timelineStart: "Start: {time}",
     timelineEnd: "End: {time}",
+    timelineHelp: "Move the sliders to define the section of the video that will be analyzed.",
     legendTarget: '<i class="dot dot--target"></i>Tracked point',
     legendPath: '<i class="dot dot--path"></i>Path',
     legendFit: '<i class="dot dot--fit"></i>Theoretical fit',
@@ -990,6 +1000,7 @@ const translations = {
     resultsTitle: "Recorded data",
     exportCsv: "Export CSV",
     footerText: '© <a href="https://bilateria.org" target="_blank" rel="noreferrer">Juan José de Haro</a>. Licensed under <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noreferrer">AGPLv3</a>. <a href="https://github.com/motiontracklab/motiontracklab.github.io/issues" target="_blank" rel="noreferrer">Suggestions and issues</a>.',
+    footerVersion: "Version {version}",
     canvasSelectVideo: "Load a video and click on the object.",
     canvasMoveAndMark: "Click on the object to mark it on the visible frame.",
     canvasMoveAndClick: "Click on the object to mark it on the visible frame.",
@@ -1296,6 +1307,7 @@ function renderStaticTexts() {
   setText("playbackRateLabel", "playbackRateLabel");
   timelineStartHandle.setAttribute("aria-label", t("timelineStartHandleAria"));
   timelineEndHandle.setAttribute("aria-label", t("timelineEndHandleAria"));
+  setText("timelineHelp", "timelineHelp");
   setHtml("legendTarget", "legendTarget");
   setHtml("legendPath", "legendPath");
   setHtml("legendFit", "legendFit");
@@ -1321,6 +1333,7 @@ function renderStaticTexts() {
   setText("resultsTitle", "resultsTitle");
   setText("exportBtn", "exportCsv");
   setHtml("footerText", "footerText");
+  document.getElementById("footerVersion").textContent = t("footerVersion", { version: APP_VERSION });
   syncCalibrationUI();
   syncViewerToolsUI();
 }
