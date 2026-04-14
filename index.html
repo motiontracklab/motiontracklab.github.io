@@ -79,24 +79,6 @@
         </div>
       </div>
 
-      <div class="time-range-fields">
-        <div class="field field--compact">
-          <span id="startTimeLabel">Inicio del análisis</span>
-          <div class="inline-field inline-field--compact">
-            <input id="startTime" type="number" min="0" step="0.01" value="0">
-            <span>s</span>
-          </div>
-        </div>
-
-        <div class="field field--compact">
-          <span id="endTimeLabel">Fin del análisis</span>
-          <div class="inline-field inline-field--compact">
-            <input id="endTime" type="number" min="0" step="0.01" value="0">
-            <span>s</span>
-          </div>
-        </div>
-      </div>
-
       <div id="usageHelp" class="help">
         <h3 id="helpTitle">Uso</h3>
         <ol>
@@ -124,7 +106,9 @@
             <div id="canvasHint" class="canvas-hint">Carga un vídeo y haz clic sobre el objeto.</div>
             <div id="selectionToast" class="selection-toast" hidden>Punto marcado</div>
           </div>
-          <p id="timelineHelp" class="timeline-help">Mueve los deslizadores para definir el tramo del vídeo que se analizará.</p>
+          <div class="player-meta">
+            <p id="timelineHelp" class="timeline-help">Mueve los deslizadores para definir el tramo del vídeo que se analizará.</p>
+          </div>
           <div class="player-bar">
             <button id="playPauseBtn" class="player-bar__toggle player-bar__toggle--play" type="button" disabled aria-label="Reproducir">▶</button>
             <div id="timelineRangeWrap" class="timeline-range-wrap">
@@ -136,16 +120,24 @@
             <div id="timelineCurrentLabel" class="player-bar__time">0.00 s</div>
           </div>
           <div class="player-actions">
-            <div class="player-actions__group">
-              <button id="jumpStartBtn" class="button button--subtle" type="button" disabled>Ir al inicio</button>
-              <button id="jumpEndBtn" class="button button--subtle" type="button" disabled>Ir al fin</button>
-              <button id="resetBtn" class="button button--subtle" type="button">Reiniciar</button>
+            <div class="player-actions__group player-actions__group--interval">
+              <span class="time-input-wrap">
+                <input id="startTime" type="number" min="0" step="0.01" value="0">
+                <span class="time-input-wrap__unit">s</span>
+              </span>
+              <button id="jumpStartBtn" class="button button--subtle button--mark-time" type="button" disabled aria-label="Ir inicio">⏮</button>
+              <button id="jumpEndBtn" class="button button--subtle button--mark-time" type="button" disabled aria-label="Ir final">⏭</button>
+              <span class="time-input-wrap">
+                <input id="endTime" type="number" min="0" step="0.01" value="0">
+                <span class="time-input-wrap__unit">s</span>
+              </span>
+              <button id="resetBtn" class="button button--subtle button--interval-reset" type="button">Reiniciar intervalo</button>
+              <label class="player-speed player-speed--compact" for="playbackRate">
+                <span id="playbackRateLabel">Velocidad</span>
+                <input id="playbackRate" type="number" min="0.01" max="3" step="0.01" value="1.0">
+                <span>x</span>
+              </label>
             </div>
-            <label class="player-speed" for="playbackRate">
-              <span id="playbackRateLabel">Velocidad</span>
-              <input id="playbackRate" type="number" min="0.01" max="3" step="0.01" value="1">
-              <span>x</span>
-            </label>
           </div>
           <div class="legend">
             <span id="legendTarget"><i class="dot dot--target"></i>Punto seguido</span>
@@ -308,7 +300,7 @@
 
   <footer class="footer">
     <p id="footerText">Herramienta estática preparada para GitHub Pages. Las coordenadas se expresan respecto al primer punto del seguimiento.</p>
-    <p id="footerVersion" class="footer__version">Versión 0.1.0</p>
+    <p id="footerVersion" class="footer__version">Versión 0.1.1</p>
   </footer>
 
   <script type="module" src="app.js"></script>

@@ -56,7 +56,7 @@ const LANGUAGE_STORAGE_KEY = "trayectoria-language";
 const SUPPORTED_LANGUAGES = ["es", "ca", "gl", "eu", "en"];
 const FIT_COLOR = "#3a78b3";
 const DEFAULT_MAX_SAMPLE_RATE = 60;
-const APP_VERSION = "0.1.0";
+const APP_VERSION = "0.1.1";
 
 const translations = {
   es: {
@@ -86,9 +86,9 @@ const translations = {
     templateSizeFieldHelp: "Define el tamaño del recorte alrededor del objeto que el programa intentará reconocer.",
     searchRadiusLabel: "Ventana de búsqueda",
     searchRadiusFieldHelp: "Marca hasta dónde buscará el objeto en el siguiente fotograma.",
-    startTimeLabel: "Inicio del análisis",
+    startTimeLabel: "Inicio",
     startTimeFieldHelp: "Fija el instante desde el que quieres empezar a medir.",
-    endTimeLabel: "Fin del análisis",
+    endTimeLabel: "Fin",
     endTimeFieldHelp: "Fija el instante en el que terminará el seguimiento.",
     orientationLabel: "Orientación del vídeo",
     orientationFieldHelp: "Ajusta cómo se muestra el vídeo si fue grabado girado.",
@@ -117,8 +117,8 @@ const translations = {
     selectionStatusLabel: "Estado:",
     playerPlayAria: "Reproducir",
     playerPauseAria: "Pausar",
-    jumpStart: "Ir al inicio",
-    jumpEnd: "Ir al fin",
+    jumpStart: "Ir inicio",
+    jumpEnd: "Ir final",
     reset: "Reiniciar",
     playbackRateLabel: "Velocidad",
     timelineStartHandleAria: "Mover el inicio del análisis",
@@ -237,11 +237,11 @@ const translations = {
     statusPlaybackCompleted: "Reproducción completada.",
     statusVideoLoaded: "Vídeo cargado. El primer fotograma ya está listo: haz clic directamente sobre el objeto para marcarlo.",
     statusVideoReadyError: "No se pudo preparar el vídeo.",
-    statusResetDone: "Reinicio realizado.",
-    statusStartFixed: "Inicio del análisis fijado en {time}.",
-    statusEndFixed: "Fin del análisis fijado en {time}. Has vuelto al inicio para marcar el objeto.",
-    statusJumpedToStart: "Vídeo colocado en el inicio del análisis ({time}).",
-    statusJumpedToEnd: "Vídeo colocado en el final del análisis ({time}).",
+    statusResetDone: "Intervalo reiniciado.",
+    statusStartFixed: "Inicio del intervalo fijado en {time}.",
+    statusEndFixed: "Fin del intervalo fijado en {time}.",
+    statusJumpedToStart: "Vídeo situado en el inicio del intervalo ({time}).",
+    statusJumpedToEnd: "Vídeo situado en el final del intervalo ({time}).",
     statusScaleUpdated: "Escala actualizada: {value} px por {unit}.",
     statusScaleInvalid: "La calibración no es válida. Prueba con dos puntos distintos.",
     statusCalibrationFirstPoint: "Primer punto de calibración marcado. Haz clic en el segundo punto.",
@@ -290,9 +290,9 @@ const translations = {
     templateSizeFieldHelp: "Defineix la mida del retall al voltant de l'objecte que el programa intentarà reconèixer.",
     searchRadiusLabel: "Finestra de cerca",
     searchRadiusFieldHelp: "Marca fins on buscarà l'objecte al fotograma següent.",
-    startTimeLabel: "Inici de l'anàlisi",
+    startTimeLabel: "Inici",
     startTimeFieldHelp: "Fixa l'instant des del qual vols començar a mesurar.",
-    endTimeLabel: "Final de l'anàlisi",
+    endTimeLabel: "Final",
     endTimeFieldHelp: "Fixa l'instant en què acabarà el seguiment.",
     orientationLabel: "Orientació del vídeo",
     orientationFieldHelp: "Ajusta com es mostra el vídeo si es va gravar girat.",
@@ -321,8 +321,8 @@ const translations = {
     selectionStatusLabel: "Estat:",
     playerPlayAria: "Reprodueix",
     playerPauseAria: "Pausa",
-    jumpStart: "Ves a l'inici",
-    jumpEnd: "Ves al final",
+    jumpStart: "Anar inici",
+    jumpEnd: "Anar final",
     reset: "Reinicia",
     playbackRateLabel: "Velocitat",
     timelineStartHandleAria: "Mou l'inici de l'anàlisi",
@@ -441,11 +441,11 @@ const translations = {
     statusPlaybackCompleted: "Reproducció completada.",
     statusVideoLoaded: "Vídeo carregat. El primer fotograma ja és a punt: fes clic directament sobre l'objecte per marcar-lo.",
     statusVideoReadyError: "No s'ha pogut preparar el vídeo.",
-    statusResetDone: "Reinici fet.",
-    statusStartFixed: "Inici de l'anàlisi fixat a {time}.",
-    statusEndFixed: "Final de l'anàlisi fixat a {time}. Has tornat a l'inici per marcar l'objecte.",
-    statusJumpedToStart: "Vídeo col·locat a l'inici de l'anàlisi ({time}).",
-    statusJumpedToEnd: "Vídeo col·locat al final de l'anàlisi ({time}).",
+    statusResetDone: "Interval reiniciat.",
+    statusStartFixed: "Inici de l'interval fixat a {time}.",
+    statusEndFixed: "Final de l'interval fixat a {time}.",
+    statusJumpedToStart: "Vídeo situat a l'inici de l'interval ({time}).",
+    statusJumpedToEnd: "Vídeo situat al final de l'interval ({time}).",
     statusScaleUpdated: "Escala actualitzada: {value} px per {unit}.",
     statusScaleInvalid: "El calibratge no és vàlid. Prova-ho amb dos punts diferents.",
     statusCalibrationFirstPoint: "Primer punt de calibratge marcat. Fes clic al segon punt.",
@@ -494,9 +494,9 @@ const translations = {
     templateSizeFieldHelp: "Define o tamaño do recorte arredor do obxecto que o programa intentará recoñecer.",
     searchRadiusLabel: "Xanela de busca",
     searchRadiusFieldHelp: "Marca ata onde buscará o obxecto no seguinte fotograma.",
-    startTimeLabel: "Inicio da análise",
+    startTimeLabel: "Inicio",
     startTimeFieldHelp: "Fixa o instante desde o que queres comezar a medir.",
-    endTimeLabel: "Fin da análise",
+    endTimeLabel: "Fin",
     endTimeFieldHelp: "Fixa o instante no que rematara o seguimento.",
     orientationLabel: "Orientación do vídeo",
     orientationFieldHelp: "Axusta como se mostra o vídeo se foi gravado xirado.",
@@ -525,8 +525,8 @@ const translations = {
     selectionStatusLabel: "Estado:",
     playerPlayAria: "Reproducir",
     playerPauseAria: "Pausar",
-    jumpStart: "Ir ao inicio",
-    jumpEnd: "Ir ao fin",
+    jumpStart: "Ir inicio",
+    jumpEnd: "Ir final",
     reset: "Reiniciar",
     playbackRateLabel: "Velocidade",
     timelineStartHandleAria: "Mover o inicio da análise",
@@ -645,11 +645,11 @@ const translations = {
     statusPlaybackCompleted: "Reprodución completada.",
     statusVideoLoaded: "Vídeo cargado. O primeiro fotograma xa está listo: fai clic directamente sobre o obxecto para marcalo.",
     statusVideoReadyError: "Non se puido preparar o vídeo.",
-    statusResetDone: "Reinicio realizado.",
-    statusStartFixed: "Inicio da análise fixado en {time}.",
-    statusEndFixed: "Fin da análise fixado en {time}. Volviches ao inicio para marcar o obxecto.",
-    statusJumpedToStart: "Vídeo colocado no inicio da análise ({time}).",
-    statusJumpedToEnd: "Vídeo colocado no final da análise ({time}).",
+    statusResetDone: "Intervalo reiniciado.",
+    statusStartFixed: "Inicio do intervalo fixado en {time}.",
+    statusEndFixed: "Fin do intervalo fixado en {time}.",
+    statusJumpedToStart: "Vídeo situado no inicio do intervalo ({time}).",
+    statusJumpedToEnd: "Vídeo situado no final do intervalo ({time}).",
     statusScaleUpdated: "Escala actualizada: {value} px por {unit}.",
     statusScaleInvalid: "A calibración non é válida. Proba con dous puntos distintos.",
     statusCalibrationFirstPoint: "Primeiro punto de calibración marcado. Fai clic no segundo punto.",
@@ -698,9 +698,9 @@ const translations = {
     templateSizeFieldHelp: "Programak ezagutzen saiatuko den objektuaren inguruko mozketa-tamaina definitzen du.",
     searchRadiusLabel: "Bilaketa-leihoa",
     searchRadiusFieldHelp: "Hurrengo fotograman objektua noraino bilatuko duen adierazten du.",
-    startTimeLabel: "Analisiaren hasiera",
+    startTimeLabel: "Hasiera",
     startTimeFieldHelp: "Neurtzen hasi nahi duzun unea finkatzen du.",
-    endTimeLabel: "Analisiaren amaiera",
+    endTimeLabel: "Amaiera",
     endTimeFieldHelp: "Jarraipena noiz amaituko den finkatzen du.",
     orientationLabel: "Bideoaren orientazioa",
     orientationFieldHelp: "Bideoa biratuta grabatu bada nola erakusten den doitzen du.",
@@ -849,11 +849,11 @@ const translations = {
     statusPlaybackCompleted: "Erreprodukzioa amaituta.",
     statusVideoLoaded: "Bideoa kargatuta. Lehen fotograma prest dago jada: egin klik zuzenean objektuan markatzeko.",
     statusVideoReadyError: "Ezin izan da bideoa prestatu.",
-    statusResetDone: "Berrezarpena eginda.",
-    statusStartFixed: "Analisiaren hasiera {time} unean ezarri da.",
-    statusEndFixed: "Analisiaren amaiera {time} unean ezarri da. Hasierara itzuli zara objektua markatzeko.",
-    statusJumpedToStart: "Bideoa analisiaren hasieran jarrita ({time}).",
-    statusJumpedToEnd: "Bideoa analisiaren amaieran jarrita ({time}).",
+    statusResetDone: "Tartea berrezarri da.",
+    statusStartFixed: "Tartearen hasiera {time} unean ezarri da.",
+    statusEndFixed: "Tartearen amaiera {time} unean ezarri da.",
+    statusJumpedToStart: "Bideoa tartearen hasieran kokatu da ({time}).",
+    statusJumpedToEnd: "Bideoa tartearen amaieran kokatu da ({time}).",
     statusScaleUpdated: "Eskala eguneratuta: {value} px {unit} bakoitzeko.",
     statusScaleInvalid: "Kalibrazioa ez da baliozkoa. Saiatu bi puntu desberdinekin.",
     statusCalibrationFirstPoint: "Lehen kalibrazio-puntua markatuta. Egin klik bigarren puntuan.",
@@ -902,9 +902,9 @@ const translations = {
     templateSizeFieldHelp: "Defines the size of the crop around the object that the program will try to recognize.",
     searchRadiusLabel: "Search window",
     searchRadiusFieldHelp: "Sets how far the object will be searched for in the next frame.",
-    startTimeLabel: "Analysis start",
+    startTimeLabel: "Start",
     startTimeFieldHelp: "Sets the instant from which you want to start measuring.",
-    endTimeLabel: "Analysis end",
+    endTimeLabel: "End",
     endTimeFieldHelp: "Sets the instant at which tracking will stop.",
     orientationLabel: "Video orientation",
     orientationFieldHelp: "Adjusts how the video is displayed if it was recorded rotated.",
@@ -933,8 +933,8 @@ const translations = {
     selectionStatusLabel: "Status:",
     playerPlayAria: "Play",
     playerPauseAria: "Pause",
-    jumpStart: "Go to start",
-    jumpEnd: "Go to end",
+    jumpStart: "Go start",
+    jumpEnd: "Go end",
     reset: "Reset",
     playbackRateLabel: "Speed",
     timelineStartHandleAria: "Move the analysis start",
@@ -1053,11 +1053,11 @@ const translations = {
     statusPlaybackCompleted: "Playback completed.",
     statusVideoLoaded: "Video loaded. The first frame is already ready: click directly on the object to mark it.",
     statusVideoReadyError: "The video could not be prepared.",
-    statusResetDone: "Reset completed.",
-    statusStartFixed: "Analysis start set to {time}.",
-    statusEndFixed: "Analysis end set to {time}. You have returned to the start to mark the object.",
-    statusJumpedToStart: "Video moved to the analysis start ({time}).",
-    statusJumpedToEnd: "Video moved to the analysis end ({time}).",
+    statusResetDone: "Interval reset.",
+    statusStartFixed: "Interval start set to {time}.",
+    statusEndFixed: "Interval end set to {time}.",
+    statusJumpedToStart: "Video moved to the interval start ({time}).",
+    statusJumpedToEnd: "Video moved to the interval end ({time}).",
     statusScaleUpdated: "Scale updated: {value} px per {unit}.",
     statusScaleInvalid: "Calibration is not valid. Try again with two different points.",
     statusCalibrationFirstPoint: "First calibration point marked. Click the second point.",
@@ -1299,9 +1299,11 @@ function renderStaticTexts() {
   setHtml("helpStep7", "helpStep7");
   setHtml("helpStep8", "helpStep8");
   setText("viewerTitle", "viewerTitle");
-  setText("jumpStartBtn", "jumpStart");
-  setText("jumpEndBtn", "jumpEnd");
+  jumpStartBtn.setAttribute("aria-label", t("jumpStart"));
+  jumpEndBtn.setAttribute("aria-label", t("jumpEnd"));
   setText("resetBtn", "reset");
+  startTimeInput.setAttribute("aria-label", t("startTimeLabel"));
+  endTimeInput.setAttribute("aria-label", t("endTimeLabel"));
   setText("playbackRateLabel", "playbackRateLabel");
   timelineStartHandle.setAttribute("aria-label", t("timelineStartHandleAria"));
   timelineEndHandle.setAttribute("aria-label", t("timelineEndHandleAria"));
@@ -1811,11 +1813,18 @@ function resetChartsAndTable() {
 }
 
 function getVelocityPoints() {
-  return trackerState.samples.slice(1).map((sample, index) => {
-    const previous = trackerState.samples[index];
-    const dt = sample.t - previous.t;
-    const dx = toPhysicalX(sample.x) - toPhysicalX(previous.x);
-    const dy = toPhysicalY(sample.y) - toPhysicalY(previous.y);
+  const { samples } = trackerState;
+
+  if (samples.length < 2) {
+    return [];
+  }
+
+  return samples.map((sample, index) => {
+    const previous = samples[Math.max(index - 1, 0)];
+    const next = samples[Math.min(index + 1, samples.length - 1)];
+    const dt = next.t - previous.t;
+    const dx = toPhysicalX(next.x) - toPhysicalX(previous.x);
+    const dy = toPhysicalY(next.y) - toPhysicalY(previous.y);
     const speed = dt > 0 ? Math.hypot(dx, dy) / dt : 0;
 
     return {
@@ -2515,6 +2524,63 @@ function updateDraggedBoundaryFromPointer(clientX) {
   });
 }
 
+async function markIntervalBoundary(boundary) {
+  if (!video.src || trackerState.isTracking) {
+    return;
+  }
+
+  stopPreview(false);
+  const duration = Number.isFinite(video.duration) ? video.duration : 0;
+  const rawValue = boundary === "start"
+    ? Number.parseFloat(startTimeInput.value)
+    : Number.parseFloat(endTimeInput.value);
+  const fallback = boundary === "start" ? 0 : duration;
+  const targetTime = clamp(Number.isFinite(rawValue) ? rawValue : fallback, 0, duration);
+
+  try {
+    await seekAndRender(targetTime);
+    if (boundary === "start") {
+      setCanvasHintKey("canvasAtStart");
+      setStatusKey("statusJumpedToStart", { time: formatTime(targetTime) });
+    } else {
+      setCanvasHintKey("canvasAtEnd");
+      setStatusKey("statusJumpedToEnd", { time: formatTime(targetTime) });
+    }
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+}
+
+async function resetAnalysisInterval() {
+  stopPreview(false);
+  if (!video.src) {
+    setStatusKey("statusSelectVideo");
+    return;
+  }
+
+  if (trackerState.isTracking) {
+    return;
+  }
+
+  const duration = Number.isFinite(video.duration) ? video.duration : 0;
+  trackerState.manualMode = false;
+  clearTrackingSelection();
+  startTimeInput.value = "0";
+  endTimeInput.value = formatNumber(duration, 2);
+  playbackRateInput.value = "1";
+  video.playbackRate = 1;
+  syncTimelineControls();
+
+  try {
+    await seekAndRender(0);
+    setCanvasHintKey("canvasAtStart");
+    setSelectionStatusKey("selectionNoPoint");
+    setStatusKey("statusResetDone");
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+}
+
 function handleAnalysisTimeInput(boundary) {
   syncTimelineControls();
 
@@ -2593,6 +2659,7 @@ function syncTimelineControls() {
   playPauseBtn.setAttribute("aria-label", trackerState.isPreviewing ? t("playerPauseAria") : t("playerPlayAria"));
   jumpStartBtn.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
   jumpEndBtn.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
+  resetBtn.disabled = !hasVideo || trackerState.isTracking || trackerState.isPreviewing;
   manualModeBtn.disabled = !hasVideo || trackerState.isTracking;
   manualModeBtn.classList.toggle("button--active", trackerState.manualMode);
   manualModeBtn.textContent = trackerState.manualMode ? t("manualModeExit") : t("manualMode");
@@ -3383,31 +3450,7 @@ playPauseBtn.addEventListener("click", async () => {
   await startPreviewPlayback();
 });
 trackBtn.addEventListener("click", startTracking);
-resetBtn.addEventListener("click", async () => {
-  stopPreview();
-  resetState(Boolean(video.src));
-  if (video.src) {
-    trackerState.sourceWidth = video.videoWidth;
-    trackerState.sourceHeight = video.videoHeight;
-    updateCanvasSizeFromTransform();
-    trackerState.readyForSelection = true;
-    trackerState.manualMode = false;
-    manualModeBtn.disabled = false;
-    calibrateBtn.disabled = false;
-    try {
-      await seekAndRender(Number.parseFloat(startTimeInput.value) || 0);
-      setCanvasHintKey("canvasAtStart");
-      setSelectionStatusKey("selectionNoPoint");
-      setStatusKey("statusResetDone");
-    } catch (error) {
-      drawFrame();
-      syncTimelineControls();
-      setStatus(error.message, true);
-    }
-  } else {
-    setStatusKey("statusSelectVideo");
-  }
-});
+resetBtn.addEventListener("click", resetAnalysisInterval);
 exportBtn.addEventListener("click", exportCsv);
 fitToggleInput.addEventListener("change", (event) => {
   trackerState.showTheoreticalFit = Boolean(event.target.checked) && Boolean(trackerState.theoreticalFit);
@@ -3497,31 +3540,11 @@ timelineRange.addEventListener("input", async () => {
     setStatus(error.message, true);
   }
 });
-jumpStartBtn.addEventListener("click", async () => {
-  if (!video.src || trackerState.isTracking) {
-    return;
-  }
-  stopPreview(false);
-  try {
-    await seekAndRender(Number.parseFloat(startTimeInput.value) || 0);
-    setCanvasHintKey("canvasAtStart");
-    setStatusKey("statusJumpedToStart", { time: formatTime(Number.parseFloat(startTimeInput.value) || 0) });
-  } catch (error) {
-    setStatus(error.message, true);
-  }
+jumpStartBtn.addEventListener("click", () => {
+  markIntervalBoundary("start");
 });
-jumpEndBtn.addEventListener("click", async () => {
-  if (!video.src || trackerState.isTracking) {
-    return;
-  }
-  stopPreview(false);
-  try {
-    await seekAndRender(Number.parseFloat(endTimeInput.value) || 0);
-    setCanvasHintKey("canvasAtEnd");
-    setStatusKey("statusJumpedToEnd", { time: formatTime(Number.parseFloat(endTimeInput.value) || 0) });
-  } catch (error) {
-    setStatus(error.message, true);
-  }
+jumpEndBtn.addEventListener("click", () => {
+  markIntervalBoundary("end");
 });
 themeToggleBtn.addEventListener("click", () => {
   const currentTheme = document.documentElement.dataset.theme || "light";
