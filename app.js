@@ -56,7 +56,7 @@ const LANGUAGE_STORAGE_KEY = "trayectoria-language";
 const SUPPORTED_LANGUAGES = ["es", "ca", "gl", "eu", "en"];
 const FIT_COLOR = "#3a78b3";
 const DEFAULT_MAX_SAMPLE_RATE = 60;
-const APP_VERSION = "0.1.1";
+const APP_VERSION = "0.1.2";
 
 const translations = {
   es: {
@@ -259,6 +259,9 @@ const translations = {
     chartXAxis: "x ({unit})",
     chartYAxis: "y ({unit}, hacia arriba)",
     chartVAxis: "v ({unit}/s)",
+    chartATitle: "Aceleración instantánea a(t)",
+    chartAHelp: "Muestra cómo varía la rapidez del movimiento a lo largo del tiempo. Un valor positivo indica que el objeto se acelera y uno negativo que frena.",
+    chartAAxis: "a ({unit}/s²)",
     csvFilename: "trayectoria.csv",
     csvX: "x_{unit}",
     csvY: "y_{unit}_hacia_arriba"
@@ -463,6 +466,9 @@ const translations = {
     chartXAxis: "x ({unit})",
     chartYAxis: "y ({unit}, cap amunt)",
     chartVAxis: "v ({unit}/s)",
+    chartATitle: "Acceleració instantània a(t)",
+    chartAHelp: "Mostra com varia la rapidesa del moviment al llarg del temps. Un valor positiu indica que l'objecte s'accelera i un de negatiu que frena.",
+    chartAAxis: "a ({unit}/s²)",
     csvFilename: "trajectoria.csv",
     csvX: "x_{unit}",
     csvY: "y_{unit}_cap_amunt"
@@ -667,6 +673,9 @@ const translations = {
     chartXAxis: "x ({unit})",
     chartYAxis: "y ({unit}, cara arriba)",
     chartVAxis: "v ({unit}/s)",
+    chartATitle: "Aceleración instantánea a(t)",
+    chartAHelp: "Mostra como varía a rapidez do movemento ao longo do tempo. Un valor positivo indica que o obxecto se acelera e un negativo que frena.",
+    chartAAxis: "a ({unit}/s²)",
     csvFilename: "traxectoria.csv",
     csvX: "x_{unit}",
     csvY: "y_{unit}_cara_arriba"
@@ -871,6 +880,9 @@ const translations = {
     chartXAxis: "x ({unit})",
     chartYAxis: "y ({unit}, gora)",
     chartVAxis: "v ({unit}/s)",
+    chartATitle: "Berehalako azelerazioa a(t)",
+    chartAHelp: "Mugimenduaren azelerazioa denboran zehar nola aldatzen den erakusten du. Balio positiboak objektua azeleratzen ari dela adierazten du eta negatiboak, moteltzen.",
+    chartAAxis: "a ({unit}/s²)",
     csvFilename: "ibilbidea.csv",
     csvX: "x_{unit}",
     csvY: "y_{unit}_gora"
@@ -1075,6 +1087,9 @@ const translations = {
     chartXAxis: "x ({unit})",
     chartYAxis: "y ({unit}, upward)",
     chartVAxis: "v ({unit}/s)",
+    chartATitle: "Instantaneous acceleration a(t)",
+    chartAHelp: "Shows how the speed of the movement changes over time. A positive value means the object is speeding up; a negative value means it is slowing down.",
+    chartAAxis: "a ({unit}/s²)",
     csvFilename: "trajectory.csv",
     csvX: "x_{unit}",
     csvY: "y_{unit}_upward"
@@ -1085,6 +1100,7 @@ let objectUrl = null;
 let chartX = null;
 let chartY = null;
 let chartV = null;
+let chartA = null;
 let chartXY = null;
 let previewAnimationFrame = null;
 let selectionToastTimer = null;
@@ -1326,6 +1342,7 @@ function renderStaticTexts() {
   document.getElementById("chartXTitle").innerHTML = buildHeadingWithInfo("chartXTitle", "chartXHelp");
   document.getElementById("chartYTitle").innerHTML = buildHeadingWithInfo("chartYTitle", "chartYHelp");
   document.getElementById("chartVTitle").innerHTML = buildHeadingWithInfo("chartVTitle", "chartVHelp");
+  document.getElementById("chartATitle").innerHTML = buildHeadingWithInfo("chartATitle", "chartAHelp");
   document.getElementById("chartXYTitle").innerHTML = buildHeadingWithInfo("chartXYTitle", "chartXYHelp");
   setText("summaryTitle", "summaryTitle");
   setText("fitPanelTitle", "fitPanelTitle");
@@ -1803,6 +1820,10 @@ function resetChartsAndTable() {
     chartV.destroy();
     chartV = null;
   }
+  if (chartA) {
+    chartA.destroy();
+    chartA = null;
+  }
   if (chartXY) {
     chartXY.destroy();
     chartXY = null;
@@ -1831,6 +1852,19 @@ function getVelocityPoints() {
       t: Number(sample.t.toFixed(3)),
       v: speed
     };
+  });
+}
+
+function getAccelerationPoints() {
+  const velocityPoints = getVelocityPoints();
+  if (velocityPoints.length < 2) return [];
+
+  return velocityPoints.map((vp, index) => {
+    const prev = velocityPoints[Math.max(index - 1, 0)];
+    const next = velocityPoints[Math.min(index + 1, velocityPoints.length - 1)];
+    const dt = next.t - prev.t;
+    const a = dt > 0 ? (next.v - prev.v) / dt : 0;
+    return { t: vp.t, a };
   });
 }
 
@@ -2781,6 +2815,7 @@ function buildCharts() {
   const yData = trackerState.samples.map((sample) => toPhysicalY(sample.y));
   const unit = trackerState.scale.pixelsPerUnit ? trackerState.scale.unit : "px";
   const velocityPoints = getVelocityPoints();
+  const accelerationPoints = getAccelerationPoints();
   const fit = trackerState.showTheoreticalFit ? trackerState.theoreticalFit : null;
   const xyData = trackerState.samples.map((sample) => ({
     x: toPhysicalX(sample.x),
@@ -2808,6 +2843,14 @@ function buildCharts() {
     data: velocityPoints.map((point) => point.v),
     borderColor: "#e54f6d",
     backgroundColor: "rgba(229, 79, 109, 0.18)",
+    tension: 0.2,
+    pointRadius: 2
+  }];
+  const aDatasets = [{
+    label: t("fitMeasuredSeries"),
+    data: accelerationPoints.map((point) => point.a),
+    borderColor: "#9b59b6",
+    backgroundColor: "rgba(155, 89, 182, 0.18)",
     tension: 0.2,
     pointRadius: 2
   }];
@@ -2851,6 +2894,23 @@ function buildCharts() {
       tension: 0,
       pointRadius: 0
     });
+    const fitVps = fit.velocityPredictions;
+    const fitAccData = fitVps.map((vp, index) => {
+      if (fit.visibleVelocityPredictions[index] === null) return null;
+      const prev = fitVps[Math.max(index - 1, 0)];
+      const next = fitVps[Math.min(index + 1, fitVps.length - 1)];
+      const dt = next.t - prev.t;
+      return dt > 0 ? (next.v - prev.v) / dt : 0;
+    });
+    aDatasets.push({
+      label: t("fitAdjustedSeries"),
+      data: fitAccData,
+      borderColor: FIT_COLOR,
+      backgroundColor: "rgba(58, 120, 179, 0.12)",
+      borderDash: [10, 6],
+      tension: 0,
+      pointRadius: 0
+    });
     xyDatasets.push({
       label: t("fitAdjustedSeries"),
       data: fit.visibleDensePredictions.map((sample) => ({ x: sample.x, y: sample.y })),
@@ -2888,6 +2948,15 @@ function buildCharts() {
       datasets: vDatasets
     },
     options: buildChartOptions(t("chartTimeAxis"), t("chartVAxis", { unit }), showLegend)
+  });
+
+  chartA = new Chart(document.getElementById("chartA"), {
+    type: "line",
+    data: {
+      labels: accelerationPoints.map((point) => point.t),
+      datasets: aDatasets
+    },
+    options: buildChartOptions(t("chartTimeAxis"), t("chartAAxis", { unit }), showLegend)
   });
 
   chartXY = new Chart(document.getElementById("chartXY"), {
