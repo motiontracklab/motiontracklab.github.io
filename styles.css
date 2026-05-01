@@ -856,7 +856,6 @@ button:disabled {
 .canvas-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
   border-radius: 18px;
   overflow: hidden;
   background:
@@ -876,7 +875,7 @@ button:disabled {
 
 #videoCanvas {
   width: 100%;
-  height: 100%;
+  height: auto;
   display: block;
   cursor: crosshair;
 }

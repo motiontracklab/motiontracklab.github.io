@@ -56,7 +56,7 @@ const LANGUAGE_STORAGE_KEY = "trayectoria-language";
 const SUPPORTED_LANGUAGES = ["es", "ca", "gl", "eu", "en"];
 const FIT_COLOR = "#3a78b3";
 const DEFAULT_MAX_SAMPLE_RATE = 60;
-const APP_VERSION = "0.1.2";
+const APP_VERSION = "0.1.3";
 
 const translations = {
   es: {
